@@ -6,8 +6,9 @@ Plug in an unfamiliar tool server and Autodidact explores it, invents its own
 practice tasks, keeps the routines that verifiably work, and gets better at real
 tasks it was never shown, with zero human examples.
 
-> Status: work in progress. The sandbox app and hidden evaluation set are done;
-> the agent, curriculum and skill library are next.
+> Status: work in progress. Done: the sandbox app, the hidden evaluation set, the
+> agent and the evaluation harness. Next: the self-generated curriculum and the
+> skill library.
 
 ## What exists so far
 
@@ -54,13 +55,50 @@ The test suite proves the evaluation is fair:
 - a wrong answer fails every question;
 - a correct solution plus one unrelated change fails.
 
-## Run it
+### The agent
 
-```bash
+A plain think, act, observe loop over the MCP tools, ending with a `finish`
+call. Its system prompt is generic (it never mentions StockRoom) and identical
+in every experiment. The only thing that changes between "no practice" and
+"after practice" is a block of knowledge the agent wrote for itself, so any
+improvement is attributable to learning.
+
+### Built for free API tiers
+
+Free tiers limit requests per minute and per day, so the harness is designed
+around them:
+
+- **One client for Groq and Gemini** through their OpenAI-compatible endpoints,
+  with MCP schemas reduced to a subset both accept.
+- **Pacing** keeps requests under the per-minute limit instead of colliding with it.
+- **Short limits** are waited out; **daily limits** stop the run at once.
+- **Resumable runs**: each result is saved as soon as it is graded, so running
+  the same command after the quota resets continues where it stopped.
+- **Response cache**: an identical request is never paid for twice.
+- **Context compaction**: older tool results are shortened to save tokens.
+- **History safety**: assistant messages are sent back byte-for-byte, so
+  Gemini's hidden thought signatures on tool calls survive multi-turn use.
+
+Results come with 95% confidence intervals, because on 60 tasks a few points
+of difference can be noise.
+
+## Run it (Windows PowerShell)
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
-pytest                                   # 156 tests
-autodidact-inventory-server --seed 1     # StockRoom as a stdio MCP server
+copy .env.example .env          # then paste your keys into .env
+pytest                          # 187 tests, no network needed
+autodidact doctor               # real two-turn tool-calling test per provider
+autodidact eval --per-template 1                 # 15 tasks: a quick baseline
+autodidact eval                                  # all 60 tasks
+autodidact report runs\docs-only__gemini-gemini-3.5-flash-lite
+autodidact show runs\docs-only__gemini-gemini-3.5-flash-lite inv-restock_one-1
 ```
+
+StockRoom also runs as a standalone MCP server for any MCP client:
+`autodidact-inventory-server --seed 1`.
 
 ## Layout
 
@@ -73,5 +111,13 @@ src/autodidact/
   envs/inventory/server.py   MCP server (in-process or stdio)
   envs/inventory/tasks.py    the 60 hidden tasks and their checkers
   tasks.py                   Task, CheckResult, answer parsing
-tests/                       app rules, task fairness, stdio server
+  llm/openai_compat.py       Groq/Gemini client: pacing, retries, quota stops
+  llm/schema.py              portable tool schemas
+  llm/cache.py               on-disk response cache
+  llm/providers.py           provider settings from .env
+  agent/loop.py              the agent loop
+  eval/runner.py             resumable evaluation on the hidden tasks
+  eval/report.py             pass rates with confidence intervals
+  cli.py                     autodidact doctor | eval | report | show
+tests/                       187 tests; providers are simulated, no network
 ```
