@@ -67,7 +67,7 @@ def build_server(app: InventoryApp) -> MCPServer:
         category: str | None = None,
         include_archived: bool = False,
     ) -> dict:
-        """List products, optionally filtered by category name. Returns one page of
+        """List products, optionally filtered by category. Returns one page of
         results; pass next_cursor back to get the next page."""
         return app.list_products(cursor, page_size, category, include_archived)
 
@@ -94,9 +94,9 @@ def build_server(app: InventoryApp) -> MCPServer:
         return app.create_product(sku, name, category, supplier_id, unit_price_paise, reorder_level)
 
     @tool
-    def update_product_price(sku: str, unit_price_paise: int) -> dict:
+    def update_product_price(sku: str, price: int) -> dict:
         """Set a product's selling price."""
-        return app.update_product_price(sku, unit_price_paise)
+        return app.update_product_price(sku, price)
 
     @tool
     def set_product_archived(sku: str, archived: bool) -> dict:

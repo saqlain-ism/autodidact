@@ -28,7 +28,7 @@ CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE categories (code TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE);
 CREATE TABLE suppliers (
     id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE, city TEXT NOT NULL,
-    lead_time_days INTEGER NOT NULL
+    lead_time_days INTEGER NOT NULL, status TEXT NOT NULL
 );
 CREATE TABLE products (
     sku TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE, category TEXT NOT NULL,
@@ -37,11 +37,11 @@ CREATE TABLE products (
 );
 CREATE TABLE quotes (
     sku TEXT NOT NULL, supplier_id TEXT NOT NULL, unit_cost_paise INTEGER NOT NULL,
-    moq INTEGER NOT NULL, PRIMARY KEY (sku, supplier_id)
+    pack_size INTEGER NOT NULL, moq INTEGER NOT NULL, PRIMARY KEY (sku, supplier_id)
 );
 CREATE TABLE purchase_orders (id TEXT PRIMARY KEY, supplier_id TEXT NOT NULL, status TEXT NOT NULL);
 CREATE TABLE po_lines (
-    po_id TEXT NOT NULL, sku TEXT NOT NULL, qty INTEGER NOT NULL,
+    po_id TEXT NOT NULL, sku TEXT NOT NULL, qty INTEGER NOT NULL, pack_size INTEGER NOT NULL,
     unit_cost_paise INTEGER NOT NULL, PRIMARY KEY (po_id, sku)
 );
 CREATE TABLE sales_orders (
@@ -201,7 +201,11 @@ CUSTOMERS = [
     "Dev Malhotra",
 ]
 
-MOQS = [1, 1, 5, 6, 10, 12, 24]
+# Suppliers sell in case packs. Purchase-order quantities and minimum order
+# quantities (MOQ) are counted in packs, not units; nothing says so explicitly.
+PACK_SIZES = [1, 1, 6, 6, 10, 12, 24]
+MOQ_PACKS = [1, 1, 1, 2, 3]
+INACTIVE_SUPPLIERS = 2
 
 
 def build_world(seed: int) -> sqlite3.Connection:
@@ -213,15 +217,22 @@ def build_world(seed: int) -> sqlite3.Connection:
     conn.execute("INSERT INTO meta VALUES ('world_seed', ?)", (str(seed),))
     conn.executemany("INSERT INTO categories VALUES (?, ?)", CATEGORIES.items())
 
-    # Suppliers: 8 of the 10 names, each in a random city.
-    supplier_ids = []
-    for i, name in enumerate(rng.sample(SUPPLIER_NAMES, 8), start=1):
-        sid = f"SUP-{i:02d}"
-        supplier_ids.append(sid)
+    # Suppliers: 8 of the 10 names, each in a random city. Two have stopped
+    # trading but still appear in lists and in old quotes.
+    supplier_ids = [f"SUP-{i:02d}" for i in range(1, 9)]
+    inactive = set(rng.sample(supplier_ids, INACTIVE_SUPPLIERS))
+    for sid, name in zip(supplier_ids, rng.sample(SUPPLIER_NAMES, 8), strict=True):
         conn.execute(
-            "INSERT INTO suppliers VALUES (?, ?, ?, ?)",
-            (sid, name, rng.choice(CITIES), rng.randint(2, 9)),
+            "INSERT INTO suppliers VALUES (?, ?, ?, ?, ?)",
+            (
+                sid,
+                name,
+                rng.choice(CITIES),
+                rng.randint(2, 9),
+                "inactive" if sid in inactive else "active",
+            ),
         )
+    active_suppliers = [s for s in supplier_ids if s not in inactive]
 
     # Products: 12 per category, SKU numbers increase with random gaps.
     used_names: set[str] = set()
@@ -237,19 +248,22 @@ def build_world(seed: int) -> sqlite3.Connection:
             stock = (
                 rng.randint(0, reorder - 1) if rng.random() < 0.27 else rng.randint(reorder, 150)
             )
-            primary = rng.choice(supplier_ids)
+            primary = rng.choice(active_suppliers)
             archived = 1 if rng.random() < 0.09 else 0
             conn.execute(
                 "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (sku, name, CATEGORIES[code], primary, price, stock, reorder, archived),
             )
             # 2-3 quotes, always including the primary supplier. The cheapest
-            # quote is often NOT the primary supplier (a deliberate quirk).
+            # quote is often NOT the primary supplier, and is sometimes from a
+            # supplier that no longer trades (deliberate quirks).
             others = rng.sample([s for s in supplier_ids if s != primary], rng.randint(1, 2))
             costs = rng.sample(range(int(price * 0.55), int(price * 0.85)), 1 + len(others))
             for sid, cost in zip([primary, *others], costs, strict=True):
+                pack = rng.choice(PACK_SIZES)
+                moq = 1 if pack >= 12 else rng.choice(MOQ_PACKS)
                 conn.execute(
-                    "INSERT INTO quotes VALUES (?, ?, ?, ?)", (sku, sid, cost, rng.choice(MOQS))
+                    "INSERT INTO quotes VALUES (?, ?, ?, ?, ?)", (sku, sid, cost, pack, moq)
                 )
 
     _seed_history(conn, rng)
@@ -292,9 +306,14 @@ def _seed_history(conn: sqlite3.Connection, rng: random.Random) -> None:
             )
 
     # A few purchase orders in different states.
-    quotes = conn.execute("SELECT sku, supplier_id, unit_cost_paise, moq FROM quotes").fetchall()
+    quotes = conn.execute(
+        "SELECT q.sku, q.supplier_id, q.unit_cost_paise, q.pack_size, q.moq FROM quotes q "
+        "JOIN suppliers s ON s.id = q.supplier_id WHERE s.status = 'active' ORDER BY q.sku"
+    ).fetchall()
     for n, status in enumerate(["received", "received", "submitted", "draft"]):
-        sku, sid, cost, moq = rng.choice(quotes)
+        sku, sid, cost, pack, moq = rng.choice(quotes)
         pid = f"PO-{5001 + n}"
         conn.execute("INSERT INTO purchase_orders VALUES (?, ?, ?)", (pid, sid, status))
-        conn.execute("INSERT INTO po_lines VALUES (?, ?, ?, ?)", (pid, sku, max(moq, 12), cost))
+        conn.execute(
+            "INSERT INTO po_lines VALUES (?, ?, ?, ?, ?)", (pid, sku, max(moq, 2), pack, cost)
+        )

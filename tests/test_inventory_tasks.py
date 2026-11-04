@@ -93,3 +93,80 @@ def test_self_cancelled_mistakes_are_forgiven():
         return await task.reference(s)
 
     assert asyncio.run(_episode(task, mistake_then_fix)).passed
+
+
+# ---------------------------------------------------------------------------
+# Each silent trap decides the outcome: the naive strategy fails the task.
+
+
+def _task(template, n=1):
+    return next(t for t in TASKS if t.id == f"inv-{template}-{n}")
+
+
+async def _sku_for(s, prompt):
+    products = await s.collect("list_products")
+    return next(p["sku"] for p in products if p["name"] in prompt)
+
+
+def test_naive_units_instead_of_packs_fails():
+    task = _task("restock_one", 3)  # cheapest supplier sells in packs
+
+    async def naive(s):
+        sku = await _sku_for(s, task.prompt)
+        target = int(task.prompt.split("at least ")[1].split(" ")[0])
+        prod = await s.must("get_product", sku=sku)
+        quotes = (await s.must("get_supplier_quotes", sku=sku))["quotes"]
+        active = []
+        for q in quotes:
+            if (await s.must("get_supplier", supplier_id=q["supplier_id"]))["status"] == "active":
+                active.append(q)
+        best = min(active, key=lambda q: q["unit_cost_paise"])
+        units = max(target - prod["stock"], best["moq"])  # treats qty as units
+        po = await s.must(
+            "create_purchase_order",
+            supplier_id=best["supplier_id"],
+            lines=[{"sku": sku, "qty": units}],
+        )
+        await s.must("submit_purchase_order", po_id=po["id"])
+        await s.must("receive_purchase_order", po_id=po["id"])
+
+    assert not asyncio.run(_episode(task, naive)).passed
+
+
+def test_naive_cheapest_quote_from_inactive_supplier_fails():
+    task = _task("restock_one", 1)  # cheapest quote is from a supplier that stopped trading
+
+    async def naive(s):
+        sku = await _sku_for(s, task.prompt)
+        quotes = (await s.must("get_supplier_quotes", sku=sku))["quotes"]
+        best = min(quotes, key=lambda q: q["unit_cost_paise"])
+        po = await s.must(
+            "create_purchase_order",
+            supplier_id=best["supplier_id"],
+            lines=[{"sku": sku, "qty": best["moq"] * 10}],
+        )
+        refused = await s.call("submit_purchase_order", {"po_id": po["id"]})
+        assert refused.error.startswith("E_SUPPLIER_UNAVAILABLE")
+
+    assert not asyncio.run(_episode(task, naive)).passed
+
+
+def test_naive_price_in_rupees_fails():
+    task = _task("set_price")
+
+    async def naive(s):
+        sku = task.prompt.split("price of ")[1].split(" ")[0]
+        rupees = float(task.prompt.split("₹")[1].rstrip("."))
+        await s.must("update_product_price", sku=sku, price=round(rupees))
+
+    assert not asyncio.run(_episode(task, naive)).passed
+
+
+def test_naive_category_name_filter_fails():
+    task = _task("count_active")
+
+    async def naive(s):
+        category = task.prompt.split("in the ")[1].split(" category")[0]
+        return str(len(await s.collect("list_products", category=category)))
+
+    assert not asyncio.run(_episode(task, naive)).passed

@@ -4,20 +4,33 @@ This is the "unfamiliar software" Autodidact must teach itself. It behaves like
 a real internal tool, including the parts that trip people up. The quirks are
 deliberate, and each one is something the agent can only learn by exploring:
 
-1. **Money is in paise.** ``unit_price_paise=24950`` means ₹249.50.
-2. **Cursor pagination.** Lists return at most 20 items and a ``next_cursor``.
-3. **Archived products are hidden** from lists and search unless asked for.
-4. **Search is capped at 5 results** and only says ``truncated: true``.
-5. **SKUs must match the category code** (``BEV-0042`` for Beverages). The error
+Quirks that raise an error (costly, but the error gives a hint):
+
+1. **SKUs must match the category code** (``BEV-0042`` for Beverages). The error
    just says the SKU was rejected.
-6. **Stock adjustments need a reason** from a fixed list that is not in the
+2. **Stock adjustments need a reason** from a fixed list that is not in the
    tool descriptions; a separate tool lists them.
-7. **Purchase orders have a lifecycle:** draft, then submitted, then received.
-   Stock only changes on receipt.
-8. **Suppliers have minimum order quantities.** Ordering less is rejected with
-   a vague message; the MOQ is visible in the supplier quotes.
-9. **The primary supplier is not always the cheapest.**
-10. **Sales orders list oldest first**, so "most recent" is on the last page.
+3. **Purchase orders have a lifecycle:** draft, then submitted, then received.
+4. **Suppliers have minimum order quantities.** Ordering less is rejected with
+   a vague message.
+5. **Inactive suppliers** still appear in quotes, and a draft order to them is
+   accepted; only submitting it fails. The rejected draft is left behind
+   unless the agent cancels it.
+6. **Page size is capped at 20.**
+
+Silent quirks (no error at all, just a wrong result):
+
+7. **Money is in paise.** ``update_product_price`` takes a bare ``price``:
+   passing 78 for ₹78 sets the price to ₹0.78.
+8. **Purchase orders count case packs, not units.** Quotes carry a
+   ``pack_size``; ordering 13 of a 12-pack item delivers 156 units.
+9. **The category filter takes the category code** (``DRY``), not the name
+   shown on every product. A name returns an empty list.
+10. **Lists are paginated** with a ``next_cursor``; one page is not everything.
+11. **Archived products are hidden** from lists and search unless asked for.
+12. **Search returns at most 5 results**, flagging only ``truncated: true``.
+13. **Sales orders list oldest first**, so "most recent" is on the last page.
+14. **The primary supplier is not always the cheapest.**
 
 All methods return plain dicts and raise ``AppError`` for business-rule errors.
 """
@@ -159,8 +172,9 @@ class InventoryApp:
         )
         args: list = []
         if category is not None:
-            sql += " AND category = ?"
-            args.append(self._category_name(category))
+            # Matches the category *code*. Anything else silently matches nothing.
+            sql += " AND category = (SELECT name FROM categories WHERE code = ?)"
+            args.append(category)
         if not include_archived:
             sql += " AND archived = 0"
         rows = [dict(r) for r in self._all(sql + " ORDER BY sku", tuple(args))]
@@ -207,13 +221,12 @@ class InventoryApp:
         )
         return self.get_product(sku)
 
-    def update_product_price(self, sku: str, unit_price_paise: int) -> dict:
+    def update_product_price(self, sku: str, price: int) -> dict:
+        """``price`` is in paise, like every amount in the app; nothing says so."""
         self._product(sku)
-        if unit_price_paise <= 0:
+        if price <= 0:
             raise AppError("E_VALIDATION", "invalid price")
-        self.db.execute(
-            "UPDATE products SET unit_price_paise = ? WHERE sku = ?", (unit_price_paise, sku)
-        )
+        self.db.execute("UPDATE products SET unit_price_paise = ? WHERE sku = ?", (price, sku))
         return self.get_product(sku)
 
     def set_product_archived(self, sku: str, archived: bool) -> dict:
@@ -252,7 +265,7 @@ class InventoryApp:
         nums = [int(r["id"].split("-")[1]) for r in self._all("SELECT id FROM suppliers")]
         sid = f"SUP-{max(nums, default=0) + 1:02d}"
         self.db.execute(
-            "INSERT INTO suppliers VALUES (?, ?, ?, ?)",
+            "INSERT INTO suppliers VALUES (?, ?, ?, ?, 'active')",
             (sid, name.strip(), city.strip(), lead_time_days),
         )
         return self.get_supplier(sid)
@@ -260,8 +273,8 @@ class InventoryApp:
     def get_supplier_quotes(self, sku: str) -> dict:
         self._product(sku)
         rows = self._all(
-            "SELECT q.supplier_id, s.name AS supplier_name, q.unit_cost_paise, q.moq "
-            "FROM quotes q JOIN suppliers s ON s.id = q.supplier_id "
+            "SELECT q.supplier_id, s.name AS supplier_name, q.unit_cost_paise, q.pack_size, "
+            "q.moq FROM quotes q JOIN suppliers s ON s.id = q.supplier_id "
             "WHERE q.sku = ? ORDER BY q.supplier_id",
             (sku,),
         )
@@ -282,13 +295,17 @@ class InventoryApp:
             )
             if quote is None:
                 raise AppError("E_NO_QUOTE", f"supplier does not supply '{ln['sku']}'")
-            priced.append((ln["sku"], ln["qty"], quote["unit_cost_paise"], quote["moq"]))
-        if any(qty < moq for _, qty, _, moq in priced):
+            priced.append(
+                (ln["sku"], ln["qty"], quote["pack_size"], quote["unit_cost_paise"], quote["moq"])
+            )
+        if any(qty < moq for _, qty, _, _, moq in priced):
             raise AppError("E_BELOW_MOQ", "quantity rejected for one or more lines")
         pid = self._next_id("purchase_orders", "PO", 5001)
         self.db.execute("INSERT INTO purchase_orders VALUES (?, ?, 'draft')", (pid, supplier_id))
-        for sku, qty, cost, _ in priced:
-            self.db.execute("INSERT INTO po_lines VALUES (?, ?, ?, ?)", (pid, sku, qty, cost))
+        for sku, qty, pack, cost, _ in priced:
+            self.db.execute(
+                "INSERT INTO po_lines VALUES (?, ?, ?, ?, ?)", (pid, sku, qty, pack, cost)
+            )
         return self.get_purchase_order(pid)
 
     def _po(self, po_id: str) -> sqlite3.Row:
@@ -302,11 +319,14 @@ class InventoryApp:
         po["lines"] = [
             dict(r)
             for r in self._all(
-                "SELECT sku, qty, unit_cost_paise FROM po_lines WHERE po_id = ? ORDER BY sku",
+                "SELECT sku, qty, pack_size, unit_cost_paise FROM po_lines "
+                "WHERE po_id = ? ORDER BY sku",
                 (po_id,),
             )
         ]
-        po["total_cost_paise"] = sum(ln["qty"] * ln["unit_cost_paise"] for ln in po["lines"])
+        po["total_cost_paise"] = sum(
+            ln["qty"] * ln["pack_size"] * ln["unit_cost_paise"] for ln in po["lines"]
+        )
         return po
 
     def list_purchase_orders(self, status: str | None = None) -> dict:
@@ -324,13 +344,16 @@ class InventoryApp:
         return po
 
     def submit_purchase_order(self, po_id: str) -> dict:
+        po = self._po(po_id)
+        if po["status"] == "draft" and self._supplier(po["supplier_id"])["status"] != "active":
+            raise AppError("E_SUPPLIER_UNAVAILABLE", "supplier is not accepting orders")
         self._transition(po_id, ("draft",), "submitted")
         return self.get_purchase_order(po_id)
 
     def receive_purchase_order(self, po_id: str) -> dict:
         self._transition(po_id, ("submitted",), "received")
-        for ln in self._all("SELECT sku, qty FROM po_lines WHERE po_id = ?", (po_id,)):
-            self._move(ln["sku"], ln["qty"], "restock", po_id)
+        for ln in self._all("SELECT sku, qty, pack_size FROM po_lines WHERE po_id = ?", (po_id,)):
+            self._move(ln["sku"], ln["qty"] * ln["pack_size"], "restock", po_id)
         return self.get_purchase_order(po_id)
 
     def cancel_purchase_order(self, po_id: str) -> dict:

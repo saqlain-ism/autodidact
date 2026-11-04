@@ -67,6 +67,14 @@ NEW_ITEMS = {
     "DRY": ["Mishti Doi 200g", "Flavoured Milk 200ml", "Rabri 200g", "Malai Paneer 500g"],
 }
 
+CODE_OF = {name: code for code, name in CATEGORIES.items()}
+
+
+def packs_for(shortfall: int, quote: dict) -> int:
+    """Fewest whole packs that cover ``shortfall`` units and meet the MOQ."""
+    return max(quote["moq"], -(-shortfall // quote["pack_size"]))
+
+
 SKU_IN_TEXT = re.compile(r"[A-Z]{3}-\d{4}")
 
 # What a template yields per task: (tier, prompt, expects_answer, check, reference).
@@ -98,10 +106,22 @@ class View:
         ]
 
     def cheapest(self, sku: str) -> dict:
-        return min(self.quotes[sku], key=lambda q: q["unit_cost_paise"])
+        """Lowest unit cost among suppliers that still take orders."""
+        usable = [
+            q for q in self.quotes[sku] if self.suppliers[q["supplier_id"]]["status"] == "active"
+        ]
+        return min(usable, key=lambda q: q["unit_cost_paise"])
 
     def is_low(self, p: dict) -> bool:
         return p["stock"] < p["reorder_level"]
+
+    def cheapest_is_inactive(self, p: dict) -> bool:
+        """The lowest quote overall comes from a supplier that no longer trades."""
+        lowest = min(self.quotes[p["sku"]], key=lambda q: q["unit_cost_paise"])
+        return self.suppliers[lowest["supplier_id"]]["status"] != "active"
+
+    def sold_in_packs(self, p: dict) -> bool:
+        return self.cheapest(p["sku"])["pack_size"] > 1
 
 
 # ===================================================================== check helpers
@@ -251,7 +271,7 @@ def t_set_price(v: View, rng: random.Random) -> list[Spec]:
             )
 
         async def ref(s: ToolSession, sku=p["sku"], new=new):
-            await s.must("update_product_price", sku=sku, unit_price_paise=new)
+            await s.must("update_product_price", sku=sku, price=new)
 
         tasks.append(
             ("easy", f"Change the selling price of {p['sku']} to {rupees(new)}.", False, check, ref)
@@ -370,7 +390,7 @@ def t_new_product(v: View, rng: random.Random) -> list[Spec]:
             code=code,
         ):
             new_sup = await s.must("create_supplier", name=sup, city=city, lead_time_days=lead)
-            rows = await s.collect("list_products", category=category, include_archived=True)
+            rows = await s.collect("list_products", category=code, include_archived=True)
             nxt = max(int(r["sku"].split("-")[1]) for r in rows) + 1
             await s.must(
                 "create_product",
@@ -406,7 +426,7 @@ def t_count_active(v: View, rng: random.Random) -> list[Spec]:
             return first_failure(only(effective_diff(b, a)), number_matches(ans, count))
 
         async def ref(s: ToolSession, category=category):
-            return str(len(await s.collect("list_products", category=category)))
+            return str(len(await s.collect("list_products", category=CODE_OF[category])))
 
         tasks.append(
             (
@@ -557,18 +577,30 @@ def t_brand_max(v: View, rng: random.Random) -> list[Spec]:
     return tasks
 
 
-def _restock_qty(v: View, p: dict, target: int) -> tuple[dict, int]:
+def _restock_qty(v: View, p: dict, target: int) -> tuple[dict, int, int]:
+    """(quote, packs to order, units that will arrive)."""
     best = v.cheapest(p["sku"])
-    return best, max(target - p["stock"], best["moq"])
+    packs = packs_for(target - p["stock"], best)
+    return best, packs, packs * best["pack_size"]
+
+
+async def _ref_best_quote(s: ToolSession, sku: str) -> dict:
+    quotes = (await s.must("get_supplier_quotes", sku=sku))["quotes"]
+    usable = []
+    for q in quotes:
+        if (await s.must("get_supplier", supplier_id=q["supplier_id"]))["status"] == "active":
+            usable.append(q)
+    return min(usable, key=lambda q: q["unit_cost_paise"])
 
 
 async def _ref_restock(s: ToolSession, sku: str, target: int, receive: bool) -> None:
     prod = await s.must("get_product", sku=sku)
-    quotes = (await s.must("get_supplier_quotes", sku=sku))["quotes"]
-    best = min(quotes, key=lambda q: q["unit_cost_paise"])
-    qty = max(target - prod["stock"], best["moq"])
+    best = await _ref_best_quote(s, sku)
+    packs = packs_for(target - prod["stock"], best)
     po = await s.must(
-        "create_purchase_order", supplier_id=best["supplier_id"], lines=[{"sku": sku, "qty": qty}]
+        "create_purchase_order",
+        supplier_id=best["supplier_id"],
+        lines=[{"sku": sku, "qty": packs}],
     )
     await s.must("submit_purchase_order", po_id=po["id"])
     if receive:
@@ -595,17 +627,30 @@ def _check_pos(d: dict[str, TableDiff], expected: set[tuple], status: str) -> Ch
 
 
 def t_restock_one(v: View, rng: random.Random) -> list[Spec]:
+    # Instances are chosen so each one probes a trap: two where the cheapest quote
+    # is from a supplier that stopped trading, two sold in case packs.
+    inactive = [p for p in v.active() if v.cheapest_is_inactive(p)]
+    packed = [p for p in v.active() if v.sold_in_packs(p) and not v.cheapest_is_inactive(p)]
     tasks = []
-    for p in rng.sample([p for p in v.active() if v.is_low(p)], 4):
-        target = 2 * p["reorder_level"]
-        best, qty = _restock_qty(v, p, target)
+    for p in [*rng.sample(inactive, 2), *rng.sample(packed, 2)]:
+        target = p["stock"] + rng.randint(8, 30)
+        best, packs, units = _restock_qty(v, p, target)
 
-        def check(b, a, ans, sku=p["sku"], sid=best["supplier_id"], qty=qty, stock=p["stock"]):
+        def check(
+            b,
+            a,
+            ans,
+            sku=p["sku"],
+            sid=best["supplier_id"],
+            packs=packs,
+            units=units,
+            stock=p["stock"],
+        ):
             d = effective_diff(b, a)
             return first_failure(
                 only(d, "purchase_orders", "po_lines", "products", "stock_movements"),
-                _check_pos(d, {(sid, sku, qty)}, "received"),
-                products_changed_exactly(d, {sku: {"stock": stock + qty}}),
+                _check_pos(d, {(sid, sku, packs)}, "received"),
+                products_changed_exactly(d, {sku: {"stock": stock + units}}),
             )
 
         async def ref(s: ToolSession, name=p["name"], target=target):
@@ -616,10 +661,10 @@ def t_restock_one(v: View, rng: random.Random) -> list[Spec]:
         tasks.append(
             (
                 "hard",
-                f"{p['name']} is running low. Buy enough from whichever supplier "
-                f"offers the lowest unit cost to bring stock up to at least {target} units, "
-                "ordering as few units as that supplier allows, and record the delivery "
-                "as received.",
+                f"We need more {p['name']}. Buy enough to bring stock up to at least "
+                f"{target} units from the supplier with the lowest unit cost that is still "
+                "accepting orders, ordering as little as that supplier allows, and record "
+                "the delivery as received.",
                 False,
                 check,
                 ref,
@@ -635,9 +680,9 @@ def t_restock_category(v: View, rng: random.Random) -> list[Spec]:
         expected_pos, expected_stock = set(), {}
         for p in v.active(category):
             if v.is_low(p):
-                best, qty = _restock_qty(v, p, 2 * p["reorder_level"])
-                expected_pos.add((best["supplier_id"], p["sku"], qty))
-                expected_stock[p["sku"]] = {"stock": p["stock"] + qty}
+                best, packs, units = _restock_qty(v, p, 2 * p["reorder_level"])
+                expected_pos.add((best["supplier_id"], p["sku"], packs))
+                expected_stock[p["sku"]] = {"stock": p["stock"] + units}
 
         def check(b, a, ans, pos=frozenset(expected_pos), stock=expected_stock):
             d = effective_diff(b, a)
@@ -648,7 +693,7 @@ def t_restock_category(v: View, rng: random.Random) -> list[Spec]:
             )
 
         async def ref(s: ToolSession, category=category):
-            for row in await s.collect("list_products", category=category):
+            for row in await s.collect("list_products", category=CODE_OF[category]):
                 prod = await s.must("get_product", sku=row["sku"])
                 if prod["stock"] < prod["reorder_level"]:
                     await _ref_restock(s, prod["sku"], 2 * prod["reorder_level"], receive=True)
@@ -658,8 +703,8 @@ def t_restock_category(v: View, rng: random.Random) -> list[Spec]:
                 "hard",
                 f"Restock the {category} category: every active product in it that "
                 "is below its reorder level should be brought up to at least twice its "
-                "reorder level. Buy each one from its cheapest supplier, order as few units "
-                "as allowed, and receive the deliveries.",
+                "reorder level. Buy each one from its cheapest supplier that is still "
+                "accepting orders, order as little as allowed, and receive the deliveries.",
                 False,
                 check,
                 ref,
@@ -680,7 +725,7 @@ def t_stock_value(v: View, rng: random.Random) -> list[Spec]:
             )
 
         async def ref(s: ToolSession, category=category):
-            rows = await s.collect("list_products", category=category)
+            rows = await s.collect("list_products", category=CODE_OF[category])
             return rupees(sum(r["unit_price_paise"] * r["stock"] for r in rows))
 
         tasks.append(
@@ -724,7 +769,7 @@ def t_price_hike(v: View, rng: random.Random) -> list[Spec]:
             for row in await s.collect("list_products"):
                 if row["supplier_id"] == sid:
                     new = round_half_up(Decimal(row["unit_price_paise"]) * (100 + pct) / 100)
-                    await s.must("update_product_price", sku=row["sku"], unit_price_paise=new)
+                    await s.must("update_product_price", sku=row["sku"], price=new)
 
         tasks.append(
             (
@@ -741,8 +786,8 @@ def t_price_hike(v: View, rng: random.Random) -> list[Spec]:
 
 
 def t_fulfil_or_backorder(v: View, rng: random.Random) -> list[Spec]:
-    enough = rng.sample([p for p in v.active() if p["stock"] >= 4], 2)
-    short = rng.sample([p for p in v.active() if 1 <= p["stock"] <= 8], 2)
+    short = rng.sample([p for p in v.active() if 1 <= p["stock"] <= 8 and v.sold_in_packs(p)], 2)
+    enough = rng.sample([p for p in v.active() if p["stock"] >= 4 and p not in short], 2)
     custs = rng.sample(NEW_CUSTOMERS, 4)
     cases = [(enough[0], False), (short[0], True), (enough[1], False), (short[1], True)]
     tasks = []
@@ -751,7 +796,7 @@ def t_fulfil_or_backorder(v: View, rng: random.Random) -> list[Spec]:
         sold = p["stock"] if is_short else q
         best = v.cheapest(p["sku"])
         po = (
-            {(best["supplier_id"], p["sku"], max(q - p["stock"], best["moq"]))}
+            {(best["supplier_id"], p["sku"], packs_for(q - p["stock"], best))}
             if is_short
             else set()
         )
@@ -791,12 +836,11 @@ def t_fulfil_or_backorder(v: View, rng: random.Random) -> list[Spec]:
                 "create_sales_order", customer_name=cust, lines=[{"sku": sku, "qty": sell}]
             )
             if sell < q:
-                quotes = (await s.must("get_supplier_quotes", sku=sku))["quotes"]
-                best = min(quotes, key=lambda x: x["unit_cost_paise"])
+                best = await _ref_best_quote(s, sku)
                 order = await s.must(
                     "create_purchase_order",
                     supplier_id=best["supplier_id"],
-                    lines=[{"sku": sku, "qty": max(q - sell, best["moq"])}],
+                    lines=[{"sku": sku, "qty": packs_for(q - sell, best)}],
                 )
                 await s.must("submit_purchase_order", po_id=order["id"])
 
@@ -805,8 +849,9 @@ def t_fulfil_or_backorder(v: View, rng: random.Random) -> list[Spec]:
                 "hard",
                 f"{cust} wants {q} x {p['name']}. If we have enough stock, just place "
                 "the order. If not, place an order for everything we have, and raise a "
-                "purchase order with the cheapest supplier for the shortfall (as few units "
-                "as that supplier allows). Submit it, but it has not been delivered yet.",
+                "purchase order for the shortfall with the cheapest supplier that is still "
+                "accepting orders (ordering as little as that supplier allows). Submit it, "
+                "but it has not been delivered yet.",
                 False,
                 check,
                 ref,

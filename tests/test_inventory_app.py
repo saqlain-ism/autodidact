@@ -116,16 +116,23 @@ def test_adjustment_reason_must_come_from_hidden_list():
     run(go())
 
 
-def test_purchase_order_lifecycle_and_moq():
+def _quote(snap, *, supplier_status="active", min_moq=1, min_pack=1):
+    """First quote for an active product matching the filters."""
+    return next(
+        q
+        for q in snap["quotes"].values()
+        if q["moq"] >= min_moq
+        and q["pack_size"] >= min_pack
+        and not snap["products"][(q["sku"],)]["archived"]
+        and snap["suppliers"][(q["supplier_id"],)]["status"] == supplier_status
+    )
+
+
+def test_purchase_order_lifecycle_moq_and_case_packs():
     async def go():
         async with ToolSession(1) as s:
-            snap = s.app.snapshot()
-            sku, sid = next(
-                (q["sku"], q["supplier_id"])
-                for q in snap["quotes"].values()
-                if q["moq"] >= 5 and not snap["products"][(q["sku"],)]["archived"]
-            )
-            moq = snap["quotes"][(sku, sid)]["moq"]
+            q = _quote(s.app.snapshot(), min_moq=2, min_pack=6)
+            sku, sid, moq, pack = q["sku"], q["supplier_id"], q["moq"], q["pack_size"]
             low = await s.call(
                 "create_purchase_order",
                 {"supplier_id": sid, "lines": [{"sku": sku, "qty": moq - 1}]},
@@ -136,6 +143,10 @@ def test_purchase_order_lifecycle_and_moq():
                 "create_purchase_order", supplier_id=sid, lines=[{"sku": sku, "qty": moq}]
             )
             assert po["status"] == "draft"
+            assert po["lines"] == [
+                {"sku": sku, "qty": moq, "pack_size": pack, "unit_cost_paise": q["unit_cost_paise"]}
+            ]
+            assert po["total_cost_paise"] == moq * pack * q["unit_cost_paise"]
             assert (
                 "E_INVALID_STATE"
                 in (await s.call("receive_purchase_order", {"po_id": po["id"]})).error
@@ -143,7 +154,55 @@ def test_purchase_order_lifecycle_and_moq():
             await s.must("submit_purchase_order", po_id=po["id"])
             assert (await s.must("get_product", sku=sku))["stock"] == before  # not yet delivered
             await s.must("receive_purchase_order", po_id=po["id"])
-            assert (await s.must("get_product", sku=sku))["stock"] == before + moq
+            # Silent trap: quantities are packs, so far more units arrive than "qty".
+            assert (await s.must("get_product", sku=sku))["stock"] == before + moq * pack
+
+    run(go())
+
+
+def test_inactive_supplier_accepts_a_draft_but_refuses_submission():
+    async def go():
+        async with ToolSession(1) as s:
+            q = _quote(s.app.snapshot(), supplier_status="inactive")
+            quotes = (await s.must("get_supplier_quotes", sku=q["sku"]))["quotes"]
+            assert q["supplier_id"] in {x["supplier_id"] for x in quotes}  # still quoted
+            supplier = await s.must("get_supplier", supplier_id=q["supplier_id"])
+            assert supplier["status"] == "inactive"
+            po = await s.must(
+                "create_purchase_order",
+                supplier_id=q["supplier_id"],
+                lines=[{"sku": q["sku"], "qty": q["moq"]}],
+            )
+            refused = await s.call("submit_purchase_order", {"po_id": po["id"]})
+            assert refused.error == "E_SUPPLIER_UNAVAILABLE: supplier is not accepting orders"
+            assert (await s.must("get_purchase_order", po_id=po["id"]))["status"] == "draft"
+
+    run(go())
+
+
+def test_every_product_has_its_main_supplier_active():
+    snap = InventoryApp.from_seed(TEST_WORLD_SEED).snapshot()
+    for p in snap["products"].values():
+        assert snap["suppliers"][(p["supplier_id"],)]["status"] == "active"
+
+
+def test_price_update_takes_paise_without_saying_so():
+    async def go():
+        async with ToolSession(1) as s:
+            sku = (await s.must("list_products"))["items"][0]["sku"]
+            await s.must("update_product_price", sku=sku, price=78)  # meant as Rs 78
+            assert (await s.must("get_product", sku=sku))["unit_price_paise"] == 78  # Rs 0.78
+
+    run(go())
+
+
+def test_category_filter_takes_the_code_and_a_name_silently_matches_nothing():
+    async def go():
+        async with ToolSession(1) as s:
+            by_name = await s.must("list_products", category="Dairy")
+            assert by_name == {"items": [], "next_cursor": None}
+            by_code = await s.collect("list_products", category="DRY")
+            assert by_code and {p["category"] for p in by_code} == {"Dairy"}
 
     run(go())
 
