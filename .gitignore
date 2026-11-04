@@ -6,6 +6,7 @@ venv/
 .env
 .pytest_cache/
 .ruff_cache/
-runs/
-cache/
+/runs/
+/cache/
 *.sqlite3
+/learn/
