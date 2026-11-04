@@ -99,3 +99,14 @@ def test_report_compares_runs(tmp_path):
     assert s["rate"] == 1.0 and s["tiers"]["easy"] == (4, 4)
     text = format_report([a, b])
     assert "before" in text and "after" in text and "100.0% (4/4)" in text and "(2/2)" in text
+
+
+def test_results_from_an_older_app_version_are_never_mixed_in(tmp_path):
+    (tmp_path / "meta.json").write_text(
+        json.dumps({"condition": "docs-only", "model": "policy:stock"})  # pre-version folder
+    )
+    with pytest.raises(RunMismatch, match="environment"):
+        asyncio.run(evaluate(StockPolicy(), STOCK[:1], tmp_path, condition="docs-only"))
+    fresh = tmp_path / "new"
+    asyncio.run(evaluate(StockPolicy(), STOCK[:1], fresh, condition="docs-only"))
+    assert json.loads((fresh / "meta.json").read_text())["environment"] == "stockroom-v2"

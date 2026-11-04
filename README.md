@@ -16,21 +16,38 @@ tasks it was never shown, with zero human examples.
 
 A small inventory app (products, suppliers, purchase orders, sales orders),
 exposed as an **MCP server** with 23 tools. Its tool descriptions are terse,
-like real internal API docs, and leave out ten deliberate quirks the agent has
-to discover by itself:
+like real internal API docs, and leave out fourteen deliberate quirks the agent
+has to discover by itself.
+
+**Silent traps** give no error at all, just a wrong result. These are what a
+capable model with no experience actually fails on:
 
 | Quirk | What goes wrong if you don't know it |
 |---|---|
-| Money is in paise | Setting a price of ₹249.50 as `249` charges ₹2.49 |
-| Cursor pagination, max 20 per page | Counts and totals silently miss products |
+| `update_product_price` takes a bare `price`, in paise | "Set it to ₹78" stores ₹0.78 |
+| Purchase orders count case packs, not units | Ordering 13 of a 12-pack item delivers 156 units |
+| The category filter takes the code (`DRY`), not the name | Filtering by "Dairy" returns an empty list |
+| Lists are paginated (`next_cursor`) | Counts and totals silently miss products |
 | Archived products are hidden by default | "Next free SKU" collides with an archived one |
-| Search returns at most 5 results | "Most expensive Kaveri product" picks the wrong one |
-| SKU prefix must match the category code | `sku rejected`, with no explanation |
-| Stock adjustments need a reason from a hidden list | `reason not accepted` |
-| Purchase orders: draft, then submitted, then received | Stock never arrives |
-| Suppliers have minimum order quantities | `quantity rejected for one or more lines` |
+| Search returns at most 5 results | "Most expensive Nimbus product" picks the wrong one |
+| Sales orders list oldest first | "Most recent order" is on a later page |
 | The main supplier is not always the cheapest | Overpaying on restocks |
-| Sales orders list oldest first | "Most recent order" is on the last page |
+
+**Error traps** cost steps, but the error gives a hint:
+
+| Quirk | What the agent sees |
+|---|---|
+| Inactive suppliers still appear in quotes; drafts to them are accepted | Submitting fails, and the abandoned draft stays behind unless cancelled |
+| SKU prefix must match the category code | `sku rejected` |
+| Stock adjustments need a reason from a hidden list | `reason not accepted` |
+| Purchase orders: draft, then submitted, then received | `cannot do that in its current state` |
+| Minimum order quantities | `quantity rejected for one or more lines` |
+| Page size is capped at 20 | `invalid page_size` |
+
+Version 1 of StockRoom had mostly error traps. The baseline agent scored 80%
+on it, because it reads errors well and recovers. That left too little room to
+measure learning, so version 2 adds the silent traps above. Each one is proven
+decisive by a test that plays the naive strategy and fails the task.
 
 Worlds are generated from a seed. The **test world** is reserved for hidden
 evaluation; the agent only ever practises on other seeds, so it cannot memorise
@@ -40,8 +57,9 @@ answers.
 
 15 templates x 4 instances, in three tiers (20 easy, 20 medium, 20 hard), from
 "How many units of STP-0188 are in stock?" to "Restock every low Dairy product
-from its cheapest supplier, respecting minimum order quantities, and receive the
-deliveries."
+from its cheapest supplier that is still accepting orders, ordering as little as
+allowed, and receive the deliveries." Where a template can probe a trap, its
+instances are chosen so that they do.
 
 Every task has an automatic checker that diffs the whole database before and
 after the episode, so doing the right thing *plus* something unasked for fails.
@@ -53,12 +71,14 @@ The test suite proves the evaluation is fair:
 - a scripted reference solution, using only the MCP tools, passes all 60 tasks;
 - doing nothing fails every task that asks for a change;
 - a wrong answer fails every question;
-- a correct solution plus one unrelated change fails.
+- a correct solution plus one unrelated change fails;
+- the naive strategy for each silent trap fails.
 
 ### The agent
 
-A plain think, act, observe loop over the MCP tools, ending with a `finish`
-call. Its system prompt is generic (it never mentions StockRoom) and identical
+A plain think, act, observe loop over the MCP tools, plus an exact
+`calculate` tool (so arithmetic slips are not mistaken for app knowledge),
+ending with a `finish` call. Its system prompt is generic (it never mentions StockRoom) and identical
 in every experiment. The only thing that changes between "no practice" and
 "after practice" is a block of knowledge the agent wrote for itself, so any
 improvement is attributable to learning.
@@ -89,12 +109,12 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 copy .env.example .env          # then paste your keys into .env
-pytest                          # 187 tests, no network needed
+pytest                          # 220 tests, no network needed
 autodidact doctor               # real two-turn tool-calling test per provider
 autodidact eval --per-template 1                 # 15 tasks: a quick baseline
 autodidact eval                                  # all 60 tasks
-autodidact report runs\docs-only__gemini-gemini-3.5-flash-lite
-autodidact show runs\docs-only__gemini-gemini-3.5-flash-lite inv-restock_one-1
+autodidact report runs\docs-only__stockroom-v2__gemini-gemini-3.5-flash-lite
+autodidact show runs\docs-only__stockroom-v2__gemini-gemini-3.5-flash-lite inv-restock_one-1
 ```
 
 StockRoom also runs as a standalone MCP server for any MCP client:
@@ -116,8 +136,9 @@ src/autodidact/
   llm/cache.py               on-disk response cache
   llm/providers.py           provider settings from .env
   agent/loop.py              the agent loop
+  agent/calculator.py        exact, sandboxed arithmetic tool
   eval/runner.py             resumable evaluation on the hidden tasks
   eval/report.py             pass rates with confidence intervals
   cli.py                     autodidact doctor | eval | report | show
-tests/                       187 tests; providers are simulated, no network
+tests/                       220 tests; providers are simulated, no network
 ```

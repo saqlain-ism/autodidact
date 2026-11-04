@@ -12,6 +12,7 @@ from pathlib import Path
 
 from autodidact.agent.loop import FINISH_TOOL, Episode
 from autodidact.config import env, load_dotenv, mask
+from autodidact.envs import version_of
 from autodidact.envs.inventory.tasks import hidden_test_tasks
 from autodidact.eval.report import format_report
 from autodidact.eval.runner import Outcome, RunMismatch, evaluate, select_tasks
@@ -117,10 +118,11 @@ def cmd_eval(args: argparse.Namespace) -> int:
         print(f"error: {exc}")
         return 1
     knowledge = Path(args.knowledge).read_text(encoding="utf-8") if args.knowledge else None
-    out = Path(args.out or f"runs/{args.condition}__{_slug(llm.name)}")
+    env_label = version_of(tasks[0].app)
+    out = Path(args.out or f"runs/{args.condition}__{env_label}__{_slug(llm.name)}")
     attempts = len(tasks) * args.runs
     print(f"condition={args.condition}  model={llm.name}  tasks={len(tasks)}  repeats={args.runs}")
-    print(f"results -> {out}   (about {attempts * 8} API requests if nothing is cached yet)\n")
+    print(f"results -> {out}   (roughly {attempts * 5} API requests if nothing is cached yet)\n")
 
     def progress(rec: dict, episode: Episode) -> None:
         mark = "PASS" if rec["passed"] else "fail"

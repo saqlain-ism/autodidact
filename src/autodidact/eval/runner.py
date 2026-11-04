@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from autodidact.agent.loop import Episode, run_episode
+from autodidact.envs import version_of
 from autodidact.envs.session import ToolSession
 from autodidact.llm.base import LLM, QuotaExhausted
 from autodidact.tasks import Task
@@ -76,7 +77,7 @@ def _check_meta(out_dir: Path, meta: dict[str, Any]) -> None:
     path = out_dir / "meta.json"
     if path.exists():
         old = json.loads(path.read_text(encoding="utf-8"))
-        for key in ("model", "condition"):
+        for key in ("environment", "model", "condition"):
             if old.get(key) != meta[key]:
                 raise RunMismatch(
                     f"{out_dir} was created for {key}={old.get(key)!r}, "
@@ -125,6 +126,7 @@ async def evaluate(
     _check_meta(
         out_dir,
         {
+            "environment": ",".join(sorted({version_of(t.app) for t in tasks})),
             "condition": condition,
             "model": llm.name,
             "runs": runs,
