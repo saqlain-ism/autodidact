@@ -101,7 +101,7 @@ def test_knowledge_goes_into_the_system_prompt_and_baseline_has_no_app_hints():
     system = llm.requests[0][0]["content"]
     assert system.startswith(SYSTEM_PROMPT) and "Prices are in paise." in system
     names = [t["function"]["name"] for t in llm.tools_seen[0]]
-    assert len(names) == 24 and names[-1] == "finish"
+    assert len(names) == 25 and names[-2:] == ["calculate", "finish"]
 
 
 def test_model_failure_ends_episode_gracefully():

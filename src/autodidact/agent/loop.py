@@ -13,6 +13,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+from autodidact.agent.calculator import CALCULATE_TOOL, calculate
 from autodidact.envs.session import ToolSession
 from autodidact.llm.base import LLM, LLMError, QuotaExhausted, Usage
 from autodidact.llm.schema import to_openai_tools
@@ -26,6 +27,7 @@ How to work:
 - Never guess data you can look up. Verify instead of assuming.
 - Read tool errors carefully. They tell you what went wrong; adjust and try again.
 - When several tool calls do not depend on each other, make them in the same turn.
+- Use `calculate` for any arithmetic instead of working it out in your head.
 - When the task is done, call `finish`. If the user asked a question, put only the \
 answer in `answer` (for example a number, an SKU or a city). If they asked for changes, \
 put a one-line summary."""
@@ -149,7 +151,7 @@ async def run_episode(
     """
     started = time.monotonic()
     episode = Episode(prompt=prompt)
-    tools = [*to_openai_tools(await session.tool_specs()), FINISH_TOOL]
+    tools = [*to_openai_tools(await session.tool_specs()), CALCULATE_TOOL, FINISH_TOOL]
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": system_prompt(knowledge)},
         {"role": "user", "content": prompt},
@@ -175,6 +177,9 @@ async def run_episode(
                     return episode
                 if call.parse_error:
                     step = ToolStep(call.name, {}, False, f"ERROR: {call.parse_error}")
+                elif call.name == "calculate":
+                    out = calculate(str(call.arguments.get("expression", "")))
+                    step = ToolStep("calculate", call.arguments, not out.startswith("ERROR"), out)
                 else:
                     result = await session.call(call.name, call.arguments)
                     step = ToolStep(call.name, call.arguments, result.ok, result.text())
