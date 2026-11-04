@@ -1,4 +1,4 @@
-"""Command line: ``autodidact doctor | eval | report | show``."""
+"""Command line: ``autodidact doctor | eval | learn | report | show``."""
 
 from __future__ import annotations
 
@@ -14,8 +14,10 @@ from autodidact.agent.loop import FINISH_TOOL, Episode
 from autodidact.config import env, load_dotenv, mask
 from autodidact.envs import version_of
 from autodidact.envs.inventory.tasks import hidden_test_tasks
+from autodidact.eval import contamination
 from autodidact.eval.report import format_report
 from autodidact.eval.runner import Outcome, RunMismatch, evaluate, select_tasks
+from autodidact.learn.session import LearnOutcome, learn
 from autodidact.llm.base import LLMError, QuotaExhausted
 from autodidact.llm.providers import PROVIDERS, ConfigError, make_llm, resolve
 
@@ -166,6 +168,81 @@ def cmd_eval(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_learn(args: argparse.Namespace) -> int:
+    try:
+        llm = make_llm(args.provider, args.model)
+    except ConfigError as exc:
+        print(f"error: {exc}")
+        return 1
+    env_label = version_of("inventory")
+    out = Path(args.out or f"learn/{env_label}__{_slug(llm.name)}")
+    print(f"model={llm.name}  episodes={args.episodes}  request budget={args.max_requests}")
+    print(f"notebook -> {out}\n")
+
+    def event(e: dict) -> None:
+        if e["type"] == "exercise":
+            print(f"[{e['episode'] + 1}] exercise: {e['exercise'][:150]}", flush=True)
+        elif e["type"] == "episode":
+            print(
+                f"    outcome: {e['outcome']}   lessons now: {e['lessons']}   "
+                f"requests this session: {e['requests']}",
+                flush=True,
+            )
+            for text in e["added"]:
+                print(f"    + {text[:140]}", flush=True)
+            for text in e["retired"]:
+                print(f"    - retired: {text[:120]}", flush=True)
+            if e["rejected"]:
+                print(f"    ({e['rejected']} lesson(s) rejected as data-specific)", flush=True)
+        elif e["type"] == "consolidated":
+            print(f"    notebook consolidated: {e['before']} -> {e['after']} lessons", flush=True)
+
+    async def run() -> LearnOutcome:
+        try:
+            return await learn(
+                llm,
+                out,
+                episodes=args.episodes,
+                max_requests=args.max_requests,
+                max_turns=args.max_turns,
+                on_event=event,
+            )
+        finally:
+            await llm.aclose()
+
+    try:
+        outcome = asyncio.run(run())
+    except ValueError as exc:
+        print(f"error: {exc}")
+        return 1
+
+    state = json.loads((out / "state.json").read_text(encoding="utf-8"))
+    exercises = [h["exercise"] for h in state["history"]]
+    overlap = contamination.report(exercises, list(hidden_test_tasks()))
+    (out / "contamination.json").write_text(json.dumps(overlap, indent=2), encoding="utf-8")
+    print(
+        f"\nepisodes done: {outcome.episodes_done}/{args.episodes}   "
+        f"requests this session: {outcome.requests}"
+    )
+    print(
+        f"practice vs hidden exam: mean word overlap {overlap['mean_similarity']:.2f}, "
+        f"max {overlap['max_similarity']:.2f}, near-copies {overlap['near_copies']}"
+    )
+    if outcome.stopped == "quota":
+        print(
+            f"\nSTOPPED: {outcome.message}\nProgress is saved. Run the same command again "
+            "after the quota resets."
+        )
+        return 2
+    if outcome.stopped == "budget":
+        print("\nPaused at the request budget. Run the same command again to continue.")
+        return 0
+    print(f"\nNotebook: {out / 'knowledge.md'}")
+    print("Next, the exam with what it learned:")
+    print(f"  autodidact eval --condition learned --knowledge {out / 'knowledge.md'}")
+    return 0
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     print(format_report(args.runs))
     return 0
@@ -224,6 +301,20 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--knowledge", help="file with learned knowledge to give the agent")
     e.add_argument("--out", help="run folder (default: runs/<condition>__<model>)")
     e.set_defaults(func=cmd_eval)
+
+    lp = sub.add_parser("learn", help="practise in sandbox shops and write a notebook of lessons")
+    lp.add_argument("--provider", choices=list(PROVIDERS))
+    lp.add_argument("--model")
+    lp.add_argument("--episodes", type=int, default=15, help="total practice episodes (default 15)")
+    lp.add_argument(
+        "--max-requests",
+        type=int,
+        default=200,
+        help="stop this session after about this many API requests (default 200)",
+    )
+    lp.add_argument("--max-turns", type=int, default=20)
+    lp.add_argument("--out", help="notebook folder (default: learn/<app>__<model>)")
+    lp.set_defaults(func=cmd_learn)
 
     r = sub.add_parser("report", help="summarise one or more run folders side by side")
     r.add_argument("runs", nargs="+")
