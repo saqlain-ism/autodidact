@@ -24,7 +24,14 @@ from typing import Any
 
 import httpx
 
-from autodidact.llm.base import LLMError, LLMResponse, QuotaExhausted, ToolCallRequest, Usage
+from autodidact.llm.base import (
+    LLMError,
+    LLMResponse,
+    ProviderUnavailable,
+    QuotaExhausted,
+    ToolCallRequest,
+    Usage,
+)
 from autodidact.llm.cache import ResponseCache, request_key
 
 # Waits longer than this are treated as a long (daily) limit.
@@ -44,7 +51,7 @@ class OpenAICompatLLM:
         temperature: float | None = None,
         reasoning_effort: str | None = None,
         timeout: float = 120,
-        max_retries: int = 6,
+        max_retries: int = 8,
         cache: ResponseCache | None = None,
         transport: httpx.AsyncBaseTransport | None = None,
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
@@ -113,7 +120,7 @@ class OpenAICompatLLM:
                 resp = await self._client.post(self._url, json=body, headers=self._headers)
             except httpx.HTTPError as exc:
                 last_error = f"network error: {exc!r}"
-                await self._sleep(min(2**attempt, 60))
+                await self._wait_unless_last(attempt, backoff(attempt))
                 continue
             if resp.status_code == 200:
                 return resp.json()
@@ -123,16 +130,22 @@ class OpenAICompatLLM:
                 if is_long_limit(text, wait):
                     raise QuotaExhausted(f"{self.name}: daily limit reached. {_short(text)}")
                 last_error = f"429 rate limited: {_short(text)}"
-                await self._sleep(wait if wait is not None else min(2**attempt * 2, 60))
+                await self._wait_unless_last(
+                    attempt, wait if wait is not None else min(2**attempt * 2, 60)
+                )
                 continue
             if resp.status_code >= 500:
                 last_error = f"{resp.status_code} server error: {_short(text)}"
-                await self._sleep(min(2**attempt, 60))
+                await self._wait_unless_last(attempt, backoff(attempt))
                 continue
             raise LLMError(f"{self.name}: HTTP {resp.status_code}: {_short(text)}")
-        raise LLMError(
+        raise ProviderUnavailable(
             f"{self.name}: gave up after {self._max_retries + 1} attempts ({last_error})"
         )
+
+    async def _wait_unless_last(self, attempt: int, seconds: float) -> None:
+        if attempt < self._max_retries:
+            await self._sleep(seconds)
 
     async def _pace(self) -> None:
         wait = self._last_request + self._min_interval - time.monotonic()
@@ -225,6 +238,11 @@ def retry_after_seconds(resp: httpx.Response) -> float | None:
             h, mnt, s = (float(x) if x else 0.0 for x in d.groups())
             return h * 3600 + mnt * 60 + s
     return None
+
+
+def backoff(attempt: int) -> float:
+    """Waits for overloaded servers: 5, 10, 20, 40, then 60 s; about 5 minutes over 8 retries."""
+    return float(min(5 * 2**attempt, 60))
 
 
 def is_long_limit(text: str, wait: float | None) -> bool:

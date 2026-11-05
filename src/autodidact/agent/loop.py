@@ -15,7 +15,7 @@ from typing import Any
 
 from autodidact.agent.calculator import CALCULATE_TOOL, calculate
 from autodidact.envs.session import ToolSession
-from autodidact.llm.base import LLM, LLMError, QuotaExhausted, Usage
+from autodidact.llm.base import LLM, LLMError, StopRun, Usage
 from autodidact.llm.schema import to_openai_tools
 
 SYSTEM_PROMPT = """\
@@ -146,7 +146,8 @@ async def run_episode(
 ) -> Episode:
     """Let the agent work on ``prompt`` until it finishes or runs out of turns.
 
-    ``QuotaExhausted`` is re-raised so the caller can stop and resume later; any
+    ``StopRun`` (daily quota, provider outage) is re-raised so the caller can stop and
+    resume later instead of recording a failure; any
     other model failure ends the episode with ``stop_reason="llm_error"``.
     """
     started = time.monotonic()
@@ -190,7 +191,7 @@ async def run_episode(
                 messages.append({"role": "tool", "tool_call_id": call.id, "content": content})
         episode.stop_reason = "max_turns"
         return episode
-    except QuotaExhausted:
+    except StopRun:
         raise
     except LLMError as exc:
         episode.stop_reason = "llm_error"

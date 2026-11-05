@@ -340,3 +340,19 @@ def test_a_notebook_from_the_old_learner_is_not_continued(tmp_path):
     )
     with pytest.raises(ValueError, match="learner-v1"):
         run(learn(FakeLearner(), tmp_path, episodes=11))
+
+
+def test_an_outage_mid_reflection_stops_cleanly_and_resumes(tmp_path):
+    from autodidact.llm.base import ProviderUnavailable
+
+    class Flaky(FakeLearner):
+        async def chat(self, messages, tools, *, sample=0, effort=None):
+            if messages[0]["content"] == prompts.REFLECT_SYSTEM and self.exercises >= 2:
+                raise ProviderUnavailable("503 server error: high demand")
+            return await super().chat(messages, tools, sample=sample, effort=effort)
+
+    first = run(learn(Flaky(), tmp_path, episodes=3))
+    assert first.stopped == "unavailable" and first.episodes_done == 1
+    second = run(learn(FakeLearner(), tmp_path, episodes=3))
+    assert second.stopped == "done"
+    assert [h["episode"] for h in State.load(tmp_path / "state.json").history] == [0, 1, 2]

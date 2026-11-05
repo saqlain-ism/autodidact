@@ -32,7 +32,7 @@ from autodidact.envs.session import ToolSession
 from autodidact.learn import prompts
 from autodidact.learn.jsonreply import ask_json
 from autodidact.learn.knowledge import KnowledgeBase
-from autodidact.llm.base import LLM, QuotaExhausted, Usage
+from autodidact.llm.base import LLM, QuotaExhausted, StopRun, Usage
 
 # Bumped when the learning prompts or method change, so a notebook built by an
 # older learner is never silently continued by a newer one.
@@ -49,7 +49,7 @@ NAIVE_MEMORY_CHARS = 8000
 @dataclass
 class LearnOutcome:
     episodes_done: int
-    stopped: str  # done | budget | quota
+    stopped: str  # done | budget | quota | unavailable
     requests: int
     message: str = ""
 
@@ -95,6 +95,10 @@ class State:
             learner=d.get("learner", "learner-v1"),
             kb=KnowledgeBase.from_dict(d["knowledge"]),
         )
+
+
+def _kind(exc: StopRun | None) -> str:
+    return "quota" if exc is None or isinstance(exc, QuotaExhausted) else "unavailable"
 
 
 def practice_seed(episode: int) -> int:
@@ -234,15 +238,15 @@ async def learn(
             await _consolidate(llm, state.kb, spent)
             state.consolidate_pending = False
             save()
-    except QuotaExhausted as exc:
-        return stop("quota", str(exc))
+    except StopRun as exc:
+        return stop(_kind(exc), str(exc))
 
     while state.episodes_done < episodes:
         if spent.requests >= max_requests:
             return stop("budget", f"used {spent.requests} requests in this session")
         i = state.episodes_done
         episode_usage = Usage()
-        quota: QuotaExhausted | None = None
+        quota: StopRun | None = None
         exercise = focus = ""
         episode: Episode | None = None
         reflection: dict[str, Any] | None = None
@@ -294,13 +298,13 @@ async def learn(
                     episode_usage,
                     effort=THINKING_EFFORT,
                 )
-            except QuotaExhausted as exc:
+            except StopRun as exc:
                 quota = exc
         spent.add(episode_usage)
         state.requests += episode_usage.requests
         state.tokens += episode_usage.total_tokens
         if quota is not None or episode is None:
-            return stop("quota", str(quota))
+            return stop(_kind(quota), str(quota))
 
         # ---- apply what this episode taught
         reflection = reflection or {}
@@ -367,8 +371,8 @@ async def learn(
             before = len(state.kb.active())
             try:
                 await _consolidate(llm, state.kb, spent)
-            except QuotaExhausted as exc:
-                return stop("quota", str(exc))
+            except StopRun as exc:
+                return stop(_kind(exc), str(exc))
             state.consolidate_pending = False
             save()
             emit({"type": "consolidated", "before": before, "after": len(state.kb.active())})

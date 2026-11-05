@@ -110,3 +110,23 @@ def test_results_from_an_older_app_version_are_never_mixed_in(tmp_path):
     fresh = tmp_path / "new"
     asyncio.run(evaluate(StockPolicy(), STOCK[:1], fresh, condition="docs-only"))
     assert json.loads((fresh / "meta.json").read_text())["environment"] == "stockroom-v2"
+
+
+class Overloaded(StockPolicy):
+    """Works for a while, then the provider stays overloaded."""
+
+    async def chat(self, messages, tools, *, sample=0, effort=None):
+        from autodidact.llm.base import ProviderUnavailable
+
+        if self.fail_after is not None and self.requests >= self.fail_after:
+            raise ProviderUnavailable("503 server error: high demand")
+        return await StockPolicy.chat(self, messages, tools, sample=sample)
+
+
+def test_an_outage_stops_the_exam_instead_of_failing_tasks(tmp_path):
+    out = asyncio.run(evaluate(Overloaded(fail_after=5), STOCK, tmp_path, condition="docs-only"))
+    assert out.stopped_early and "503" in out.message
+    records = load(tmp_path)
+    assert len(records) == 2 and all(r["passed"] for r in records)  # no fake failures
+    again = asyncio.run(evaluate(StockPolicy(), STOCK, tmp_path, condition="docs-only"))
+    assert again.completed == 2 and len(load(tmp_path)) == 4

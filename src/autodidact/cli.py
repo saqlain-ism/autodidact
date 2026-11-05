@@ -100,6 +100,18 @@ def cmd_doctor(args: argparse.Namespace) -> int:
 # --------------------------------------------------------------------- eval
 
 
+def resume_hint(message: str) -> str:
+    if "daily limit" in message:
+        return (
+            "Run the same command again after the quota resets "
+            "(Gemini: midnight Pacific time, 1:30 pm IST in winter, 12:30 pm in summer)."
+        )
+    return (
+        "The provider is overloaded or unreachable right now; nothing was counted as a "
+        "failure. Run the same command again in 10 to 30 minutes."
+    )
+
+
 def _slug(text: str) -> str:
     return re.sub(r"[^a-zA-Z0-9.-]+", "-", text).strip("-").lower()
 
@@ -158,10 +170,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
     print(f"\ncompleted {outcome.completed}, already done {outcome.skipped}")
     if outcome.stopped_early:
         print(f"\nSTOPPED: {outcome.message}")
-        print(
-            "Progress is saved. Run the same command again after the quota resets "
-            "(Gemini resets at midnight Pacific time: 12:30 pm IST, or 1:30 pm IST in winter)."
-        )
+        print(f"Progress is saved. {resume_hint(outcome.message)}")
         return 2
     print()
     print(format_report([out]))
@@ -228,11 +237,8 @@ def cmd_learn(args: argparse.Namespace) -> int:
         f"practice vs hidden exam: mean word overlap {overlap['mean_similarity']:.2f}, "
         f"max {overlap['max_similarity']:.2f}, near-copies {overlap['near_copies']}"
     )
-    if outcome.stopped == "quota":
-        print(
-            f"\nSTOPPED: {outcome.message}\nProgress is saved. Run the same command again "
-            "after the quota resets."
-        )
+    if outcome.stopped in ("quota", "unavailable"):
+        print(f"\nSTOPPED: {outcome.message}\nProgress is saved. {resume_hint(outcome.message)}")
         return 2
     if outcome.stopped == "budget":
         print("\nPaused at the request budget. Run the same command again to continue.")

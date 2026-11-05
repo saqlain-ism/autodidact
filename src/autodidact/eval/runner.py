@@ -24,7 +24,7 @@ from typing import Any
 from autodidact.agent.loop import Episode, run_episode
 from autodidact.envs import version_of
 from autodidact.envs.session import ToolSession
-from autodidact.llm.base import LLM, QuotaExhausted
+from autodidact.llm.base import LLM, StopRun
 from autodidact.tasks import Task
 
 
@@ -149,7 +149,7 @@ async def evaluate(
                     continue
                 # Catch the quota stop inside the session: exceptions that cross the
                 # MCP client's task group come out wrapped in an ExceptionGroup.
-                quota: QuotaExhausted | None = None
+                quota: StopRun | None = None
                 async with ToolSession(task.world_seed) as session:
                     before = session.app.snapshot()
                     try:
@@ -161,7 +161,7 @@ async def evaluate(
                             max_turns=max_turns,
                             sample=run,
                         )
-                    except QuotaExhausted as exc:
+                    except StopRun as exc:
                         quota = exc
                     after = session.app.snapshot()
                 if quota is not None:

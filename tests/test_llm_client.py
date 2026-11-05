@@ -265,3 +265,14 @@ def test_a_request_can_override_reasoning_effort():
     run(llm.chat([{"role": "user", "content": "a"}], []))
     run(llm.chat([{"role": "user", "content": "b"}], [], effort="medium"))
     assert [b["reasoning_effort"] for b in bodies] == ["low", "medium"]
+
+
+def test_persistent_overload_raises_a_clean_stop_after_gentle_backoff():
+    from autodidact.llm.base import ProviderUnavailable, StopRun
+
+    overloaded = '{"error": {"code": 503, "message": "high demand", "status": "UNAVAILABLE"}}'
+    llm, sleeps = make_client(lambda r: httpx.Response(503, text=overloaded))
+    with pytest.raises(ProviderUnavailable) as info:
+        run(llm.chat([], []))
+    assert isinstance(info.value, StopRun)
+    assert sleeps == [5, 10, 20, 40, 60, 60, 60, 60]  # about 5 minutes, none after the last try

@@ -54,8 +54,16 @@ class LLMError(Exception):
     """The provider rejected the request, or kept failing after retries."""
 
 
-class QuotaExhausted(LLMError):
-    """A daily (or similarly long) limit was hit. Save progress and resume later."""
+class StopRun(LLMError):
+    """Not the task's fault: stop cleanly, keep progress, and resume later."""
+
+
+class QuotaExhausted(StopRun):
+    """A daily (or similarly long) limit was hit."""
+
+
+class ProviderUnavailable(StopRun):
+    """The provider kept failing (overloaded, server errors, network) after retries."""
 
 
 class LLM(Protocol):

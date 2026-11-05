@@ -172,7 +172,7 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 copy .env.example .env          # then paste your keys into .env
-pytest                          # 247 tests, no network needed
+pytest                          # 250 tests, no network needed
 autodidact doctor               # real two-turn tool-calling test per provider
 autodidact eval --per-template 1                 # 15 tasks: a quick baseline
 autodidact eval                                  # all 60 tasks
@@ -210,5 +210,5 @@ src/autodidact/
   eval/contamination.py      practice-versus-exam overlap report
   eval/report.py             pass rates with confidence intervals
   cli.py                     autodidact doctor | eval | learn | report | show
-tests/                       247 tests; providers are simulated, no network
+tests/                       250 tests; providers are simulated, no network
 ```
