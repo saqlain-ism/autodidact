@@ -252,3 +252,16 @@ def test_cache_replays_identical_requests_but_not_new_samples(tmp_path):
     assert again.usage.requests == 0 and again.message == first.message
     run(llm.chat(msgs, [], sample=1))
     assert len(calls) == 2 and len(cache) == 2
+
+
+def test_a_request_can_override_reasoning_effort():
+    bodies = []
+
+    def handler(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=TOOL_REPLY)
+
+    llm, _ = make_client(handler, reasoning_effort="low")
+    run(llm.chat([{"role": "user", "content": "a"}], []))
+    run(llm.chat([{"role": "user", "content": "b"}], [], effort="medium"))
+    assert [b["reasoning_effort"] for b in bodies] == ["low", "medium"]

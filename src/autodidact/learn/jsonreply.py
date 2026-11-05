@@ -29,12 +29,12 @@ def extract_json(text: str | None) -> dict[str, Any] | None:
 
 
 async def ask_json(
-    llm: LLM, system: str, user: str, usage: Usage, *, sample: int = 0
+    llm: LLM, system: str, user: str, usage: Usage, *, sample: int = 0, effort: str | None = None
 ) -> dict[str, Any] | None:
     """One request, and one retry if the reply is not a JSON object."""
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     for attempt in range(2):
-        response = await llm.chat(messages, [], sample=sample)
+        response = await llm.chat(messages, [], sample=sample, effort=effort)
         usage.add(response.usage)
         value = extract_json(response.content)
         if value is not None:

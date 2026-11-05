@@ -24,7 +24,7 @@ class StockPolicy:
         self.requests = 0
         self.fail_after = fail_after
 
-    async def chat(self, messages, tools, *, sample=0):
+    async def chat(self, messages, tools, *, sample=0, effort=None):
         self.requests += 1
         if self.fail_after is not None and self.requests > self.fail_after:
             raise QuotaExhausted("daily limit reached")

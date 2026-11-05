@@ -34,6 +34,12 @@ from autodidact.learn.jsonreply import ask_json
 from autodidact.learn.knowledge import KnowledgeBase
 from autodidact.llm.base import LLM, QuotaExhausted, Usage
 
+# Bumped when the learning prompts or method change, so a notebook built by an
+# older learner is never silently continued by a newer one.
+LEARNER_VERSION = "learner-v2"
+# Curriculum, reflection and consolidation are a few requests per episode and
+# decide what gets learned, so they think harder than ordinary agent steps.
+THINKING_EFFORT = "medium"
 PRACTICE_SEED_BASE = 1000
 HISTORY_IN_PROMPT = 12
 TRANSCRIPT_CHARS = 14000
@@ -57,6 +63,7 @@ class State:
     tokens: int = 0
     consolidate_pending: bool = False
     model: str = ""
+    learner: str = LEARNER_VERSION
     kb: KnowledgeBase = field(default_factory=KnowledgeBase)
 
     def to_dict(self) -> dict[str, Any]:
@@ -68,6 +75,7 @@ class State:
             "tokens": self.tokens,
             "consolidate_pending": self.consolidate_pending,
             "model": self.model,
+            "learner": self.learner,
             "knowledge": self.kb.to_dict(),
         }
 
@@ -84,6 +92,7 @@ class State:
             tokens=d["tokens"],
             consolidate_pending=d.get("consolidate_pending", False),
             model=d.get("model", ""),
+            learner=d.get("learner", "learner-v1"),
             kb=KnowledgeBase.from_dict(d["knowledge"]),
         )
 
@@ -175,7 +184,9 @@ def render_naive(traces: list[str]) -> str:
 async def _consolidate(llm: LLM, kb: KnowledgeBase, usage: Usage) -> bool:
     if len(kb.active()) < 4:
         return True
-    reply = await ask_json(llm, prompts.CONSOLIDATE_SYSTEM, "LESSONS:\n" + kb.numbered(), usage)
+    reply = await ask_json(
+        llm, prompts.CONSOLIDATE_SYSTEM, "LESSONS:\n" + kb.numbered(), usage, effort=THINKING_EFFORT
+    )
     if reply and isinstance(reply.get("lessons"), list):
         kb.replace_active([x for x in reply["lessons"] if isinstance(x, dict)])
     return True
@@ -197,6 +208,11 @@ async def learn(
     state = State.load(state_path)
     if state.model and state.model != llm.name:
         raise ValueError(f"{out} belongs to model {state.model}, not {llm.name}")
+    if state.learner != LEARNER_VERSION:
+        raise ValueError(
+            f"{out} was built by {state.learner}; this is {LEARNER_VERSION}. "
+            "Use a new --out folder."
+        )
     state.model = llm.name
     emit = on_event or (lambda e: None)
     spent = Usage()
@@ -247,6 +263,7 @@ async def learn(
                         number=i + 1,
                     ),
                     episode_usage,
+                    effort=THINKING_EFFORT,
                 )
                 exercise = str((proposal or {}).get("exercise") or "").strip()
                 focus = str((proposal or {}).get("focus") or "").strip()
@@ -267,6 +284,7 @@ async def learn(
                     llm,
                     prompts.REFLECT_SYSTEM,
                     prompts.REFLECT_USER.format(
+                        tools=tools_text(specs),
                         lessons=state.kb.numbered(),
                         exercise=exercise,
                         transcript=transcript_text(episode),
@@ -274,6 +292,7 @@ async def learn(
                         stop_reason=episode.stop_reason,
                     ),
                     episode_usage,
+                    effort=THINKING_EFFORT,
                 )
             except QuotaExhausted as exc:
                 quota = exc

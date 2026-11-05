@@ -17,7 +17,7 @@ from autodidact.envs.inventory.tasks import hidden_test_tasks
 from autodidact.eval import contamination
 from autodidact.eval.report import format_report
 from autodidact.eval.runner import Outcome, RunMismatch, evaluate, select_tasks
-from autodidact.learn.session import LearnOutcome, learn
+from autodidact.learn.session import LEARNER_VERSION, LearnOutcome, learn
 from autodidact.llm.base import LLMError, QuotaExhausted
 from autodidact.llm.providers import PROVIDERS, ConfigError, make_llm, resolve
 
@@ -175,7 +175,7 @@ def cmd_learn(args: argparse.Namespace) -> int:
         print(f"error: {exc}")
         return 1
     env_label = version_of("inventory")
-    out = Path(args.out or f"learn/{env_label}__{_slug(llm.name)}")
+    out = Path(args.out or f"learn/{env_label}__{LEARNER_VERSION}__{_slug(llm.name)}")
     print(f"model={llm.name}  episodes={args.episodes}  request budget={args.max_requests}")
     print(f"notebook -> {out}\n")
 

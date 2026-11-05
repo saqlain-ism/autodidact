@@ -130,6 +130,22 @@ Guards against cheating and noise:
 The notebook (`knowledge.md`) is the only thing that differs between the
 "docs only" and "learned" conditions.
 
+**What the first run taught me (learner v1 to v2).** The first 10 practice
+episodes produced a notebook that only restated the tool descriptions and found
+none of the traps. The transcripts showed why: in one exercise the agent ordered
+6 of a 6-pack item, watched stock rise from 149 to 185, and reported "no
+surprises". It never said what it expected, so nothing could surprise it.
+Learner v2 changes three things, all still domain-neutral:
+
+- practice states the expected effect of each change before acting and reports
+  `EXPECTED vs ACTUAL` with exact numbers;
+- reflection gets the tool descriptions, recomputes before/after differences
+  itself, and may only keep what the descriptions do not already say;
+- the curriculum favours exact-answer and all-records requests with varied
+  inputs, where silent rules show up, over "check that tool X works".
+
+A test enforces that no learning prompt mentions any StockRoom concept.
+
 ### Built for free API tiers
 
 Free tiers limit requests per minute and per day, so the harness is designed
@@ -156,13 +172,13 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 copy .env.example .env          # then paste your keys into .env
-pytest                          # 238 tests, no network needed
+pytest                          # 247 tests, no network needed
 autodidact doctor               # real two-turn tool-calling test per provider
 autodidact eval --per-template 1                 # 15 tasks: a quick baseline
 autodidact eval                                  # all 60 tasks
 autodidact learn                                 # 15 practice episodes, ~150 requests
-autodidact eval --condition learned --knowledge learn\stockroom-v2__gemini-gemini-3.5-flash-lite\knowledge.md
-autodidact eval --condition naive-memory --knowledge learn\stockroom-v2__gemini-gemini-3.5-flash-lite\naive_memory.md
+autodidact eval --condition learned --knowledge learn\stockroom-v2__learner-v2__gemini-gemini-3.5-flash-lite\knowledge.md
+autodidact eval --condition naive-memory --knowledge learn\stockroom-v2__learner-v2__gemini-gemini-3.5-flash-lite\naive_memory.md
 autodidact report runs\docs-only__stockroom-v2__gemini-gemini-3.5-flash-lite
 autodidact show runs\docs-only__stockroom-v2__gemini-gemini-3.5-flash-lite inv-restock_one-1
 ```
@@ -194,5 +210,5 @@ src/autodidact/
   eval/contamination.py      practice-versus-exam overlap report
   eval/report.py             pass rates with confidence intervals
   cli.py                     autodidact doctor | eval | learn | report | show
-tests/                       238 tests; providers are simulated, no network
+tests/                       247 tests; providers are simulated, no network
 ```

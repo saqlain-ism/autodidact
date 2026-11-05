@@ -23,7 +23,7 @@ class ScriptedLLM:
         self.requests: list[list[dict[str, Any]]] = []
         self.tools_seen: list[list[dict[str, Any]]] = []
 
-    async def chat(self, messages, tools, *, sample: int = 0) -> LLMResponse:
+    async def chat(self, messages, tools, *, sample: int = 0, effort=None) -> LLMResponse:
         self.requests.append(json.loads(json.dumps(messages)))
         self.tools_seen.append(tools)
         if not self.steps:

@@ -68,21 +68,32 @@ class OpenAICompatLLM:
 
     # ----------------------------------------------------------------- request
 
-    def build_body(self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]) -> dict:
+    def build_body(
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        effort: str | None = None,
+    ) -> dict:
         body: dict[str, Any] = {"model": self.model, "messages": messages}
         if tools:
             body["tools"] = tools
             body["tool_choice"] = "auto"
         if self._temperature is not None:
             body["temperature"] = self._temperature
-        if self._reasoning_effort:
-            body["reasoning_effort"] = self._reasoning_effort
+        effort = effort or self._reasoning_effort
+        if effort:
+            body["reasoning_effort"] = effort
         return body
 
     async def chat(
-        self, messages: list[dict[str, Any]], tools: list[dict[str, Any]], *, sample: int = 0
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        *,
+        sample: int = 0,
+        effort: str | None = None,
     ) -> LLMResponse:
-        body = self.build_body(messages, tools)
+        body = self.build_body(messages, tools, effort)
         key = request_key(body, sample)
         if self._cache is not None and (hit := self._cache.get(key)) is not None:
             response = parse_response(hit)

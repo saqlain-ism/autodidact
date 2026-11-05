@@ -62,7 +62,13 @@ class LLM(Protocol):
     name: str
 
     async def chat(
-        self, messages: list[dict[str, Any]], tools: list[dict[str, Any]], *, sample: int = 0
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        *,
+        sample: int = 0,
+        effort: str | None = None,
     ) -> LLMResponse:
-        """One chat completion. ``sample`` separates repeated runs in the cache."""
+        """One chat completion. ``sample`` separates repeated runs in the cache;
+        ``effort`` overrides the configured reasoning effort for this request."""
         ...

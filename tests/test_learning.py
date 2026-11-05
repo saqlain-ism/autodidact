@@ -52,7 +52,8 @@ class FakeLearner:
                 reqs.append(ToolCallRequest(cid, name, args))
         return LLMResponse(content, reqs, msg, Usage(300, 30, 1))
 
-    async def chat(self, messages, tools, *, sample=0):
+    async def chat(self, messages, tools, *, sample=0, effort=None):
+        self.efforts = getattr(self, "efforts", []) + [effort]
         self.calls += 1
         if self.quota_after is not None and self.calls > self.quota_after:
             raise QuotaExhausted("daily limit reached")
@@ -259,3 +260,83 @@ def test_contamination_report():
     tasks = list(hidden_test_tasks())
     r = report(["Look around the application.", tasks[0].prompt], tasks)
     assert r["exercises"] == 2 and r["near_copies"] == 1 and r["max_similarity"] == 1.0
+
+
+# ------------------------------------------------------------- learner v2
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        prompts.CURRICULUM_SYSTEM,
+        prompts.CURRICULUM_USER,
+        prompts.PRACTICE_SUFFIX,
+        prompts.REFLECT_SYSTEM,
+        prompts.REFLECT_USER,
+        prompts.CONSOLIDATE_SYSTEM,
+    ],
+)
+def test_prompts_give_no_hints_about_the_app(prompt):
+    banned = [
+        "pack",
+        "paise",
+        "rupee",
+        "cursor",
+        "paginat",
+        "inventory",
+        "stock",
+        "supplier",
+        "categor",
+        "archiv",
+        "sku",
+        "truncat",
+        "purchase",
+        "sales order",
+    ]
+    lowered = prompt.lower()
+    assert [w for w in banned if w in lowered] == []
+
+
+def test_practice_asks_for_expectations_and_reflection_sees_the_docs(tmp_path):
+    seen = []
+
+    class Recording(FakeLearner):
+        async def chat(self, messages, tools, *, sample=0, effort=None):
+            seen.append(
+                (
+                    messages[0]["content"],
+                    messages[-1]["content"] if messages else "",
+                    effort,
+                    messages,
+                )
+            )
+            return await super().chat(messages, tools, sample=sample, effort=effort)
+
+    run(learn(Recording(), tmp_path, episodes=1))
+    reflect = next(m for system, _, _, m in seen if system == prompts.REFLECT_SYSTEM)
+    assert "TOOL DESCRIPTIONS" in reflect[1]["content"]
+    assert "create_purchase_order(supplier_id, lines)" in reflect[1]["content"]
+    agent_first = next(m for system, _, _, m in seen if system.startswith("You are an operations"))
+    assert "EXPECTED vs ACTUAL" in agent_first[1]["content"]
+    efforts = {system[:30]: effort for system, _, effort, _ in seen}
+    assert efforts[prompts.CURRICULUM_SYSTEM[:30]] == "medium"
+    assert efforts[prompts.REFLECT_SYSTEM[:30]] == "medium"
+    assert efforts["You are an operations assistan"] is None  # agent steps use the default
+
+
+def test_a_notebook_from_the_old_learner_is_not_continued(tmp_path):
+    (tmp_path / "state.json").write_text(
+        json.dumps(
+            {
+                "episodes_done": 10,
+                "history": [],
+                "tool_usage": {},
+                "requests": 90,
+                "tokens": 1,
+                "model": "fake:learner",
+                "knowledge": {"lessons": [], "next_id": 1, "rejected": []},
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="learner-v1"):
+        run(learn(FakeLearner(), tmp_path, episodes=11))
