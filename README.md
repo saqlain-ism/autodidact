@@ -2,28 +2,59 @@
 
 **An LLM agent that teaches itself to use software it has never seen.**
 
-Plug in an unfamiliar tool server and Autodidact explores it, invents its own
-practice tasks, keeps the routines that verifiably work, and gets better at real
-tasks it was never shown, with zero human examples.
+It practises in a sandbox copy of an unfamiliar app, sets its own exercises,
+checks every result against what it expected, and writes itself a notebook of
+lessons. Then it is tested on hidden tasks, in a shop with different data, with
+no human examples at any point.
 
-> Status: work in progress. Done: the sandbox app, the hidden evaluation set, the
-> agent, the evaluation harness and the self-directed learning loop. Next: the
-> learned-versus-baseline experiments, a second app for the transfer test, and a
-> dashboard.
+![Success on unseen tasks before and after practice](docs/figures/headline.svg)
 
-## Baseline (no practice)
+## Result
 
-60 hidden tasks, `gemini-3.5-flash-lite`, one attempt each:
+Same model (`gemini-3.5-flash-lite`), same 60 hidden tasks, plus a repeat
+attempt on the 12 tasks that depend on case packs. The only difference between
+the two runs is the notebook the agent wrote during 15 practice episodes.
 
-| | Pass rate | 95% interval | Avg API requests | Avg tokens |
+| | No practice | After practice | Fixed / broken | McNemar p |
 |---|---|---|---|---|
-| StockRoom v2, docs only | 80.0% (48/60) | 68% to 88% | 5.7 | 19,531 |
+| Tasks affected by the rule it discovered | 15/24 (62.5%) | **22/24 (91.7%)** | 7 / 0 | **0.016** |
+| All hidden tasks | 56/72 (77.8%) | 61/72 (84.7%) | 7 / 2 | 0.18 |
 
-Easy 20/20, medium 16/20, hard 12/20. Of the 12 failures, 10 come from traps
-that practice could teach: case packs (5), pagination (4, including one where
-the agent decoded the opaque page cursor and **forged its own**, skipping three
-pages) and the search cap (1). Two task types use half of all tokens. So the
-experiment measures three things: success, cost per task, and reliability.
+During practice the agent discovered, with no hint anywhere in its prompts,
+that purchase-order quantities count **case packs, not units**. On the hidden
+test, every attempt that changed outcome on those tasks changed for the better.
+In one replayed attempt the agent without its notebook ordered 20 packs
+(200 units) to reach a target of 43; with its notebook it worked out
+`23 + 3 × 10 = 53` and ordered 3.
+
+![Pass rate by task type](docs/figures/by-task-type.svg)
+
+**Limits, stated plainly.**
+
+- The gain is concentrated where it learned something; across all attempts the
+  change is not statistically significant on its own.
+- It never discovered the pagination rules, so "every record" and "most recent"
+  tasks did not improve.
+- Cost per attempt went up by about 20% (21k to 26k tokens): with its notebook
+  the agent reads more data before acting.
+- The affected group was identified after the first exam run. The repeat
+  attempts were run afterwards to check it and reproduced the gain
+  (8/12 to 11/12).
+- One small model and one sandbox app. A second app for a transfer test is next.
+
+Every number here is computed from the raw results in [`results/`](results/),
+including all 144 transcripts. The [replay site](docs/index.html) shows each
+attempt side by side, without and with the notebook.
+
+### How it got here
+
+| Step | What happened |
+|---|---|
+| StockRoom v1, no practice | 80% on 15 tasks: too easy. The agent recovers from errors, so error-only traps leave nothing to learn. |
+| StockRoom v2, no practice | 80% on 60 tasks, but 54% more requests per task: silent traps make it stumble. 10 of 12 failures come from learnable traps, including one attempt where it **forged its own pagination cursor** and skipped three pages. |
+| Learner v1 | The notebook only restated the tool docs. In one transcript the agent ordered 6 of a 6-pack item, saw stock rise by 36 and reported "no surprises". |
+| Learner v2 | Practice now states expectations and compares numbers. The notebook found case packs, inactive suppliers, MOQ rules and SKU rules. |
+| Learned exam + repeat | The results above. |
 
 ## What exists so far
 
@@ -125,7 +156,8 @@ Guards against cheating and noise:
 - a **contamination report** gives each practice exercise's word overlap with
   its closest hidden task, and counts near-copies;
 - a **naive-memory ablation** gives the agent the same practice experience as
-  raw transcripts, with no reflection, to show what reflection itself adds.
+  raw transcripts, with no reflection, to show what reflection itself adds
+  (built and tested; not yet run on the real model).
 
 The notebook (`knowledge.md`) is the only thing that differs between the
 "docs only" and "learned" conditions.
@@ -172,7 +204,7 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 copy .env.example .env          # then paste your keys into .env
-pytest                          # 250 tests, no network needed
+pytest                          # no network needed
 autodidact doctor               # real two-turn tool-calling test per provider
 autodidact eval --per-template 1                 # 15 tasks: a quick baseline
 autodidact eval                                  # all 60 tasks
@@ -181,6 +213,14 @@ autodidact eval --condition learned --knowledge learn\stockroom-v2__learner-v2__
 autodidact eval --condition naive-memory --knowledge learn\stockroom-v2__learner-v2__gemini-gemini-3.5-flash-lite\naive_memory.md
 autodidact report runs\docs-only__stockroom-v2__gemini-gemini-3.5-flash-lite
 autodidact show runs\docs-only__stockroom-v2__gemini-gemini-3.5-flash-lite inv-restock_one-1
+```
+
+Reproduce the published numbers and figures from the committed results (no API key needed):
+
+```powershell
+autodidact compare results\docs-only results\learned
+python scripts\make_figures.py      # docs\figures\*.svg
+python scripts\build_site.py        # docs\data.js for the replay site
 ```
 
 StockRoom also runs as a standalone MCP server for any MCP client:
@@ -209,6 +249,10 @@ src/autodidact/
   eval/runner.py             resumable evaluation on the hidden tasks
   eval/contamination.py      practice-versus-exam overlap report
   eval/report.py             pass rates with confidence intervals
-  cli.py                     autodidact doctor | eval | learn | report | show
-tests/                       250 tests; providers are simulated, no network
+  eval/compare.py            paired before/after comparison, McNemar's exact test
+  cli.py                     autodidact doctor | eval | learn | compare | report | show
+results/                     raw results and transcripts behind every published number
+scripts/                     regenerate the figures and the replay site from results/
+docs/                        replay site (GitHub Pages) and figures
+tests/                       tests; providers are simulated, no network
 ```
