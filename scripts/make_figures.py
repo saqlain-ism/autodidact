@@ -146,8 +146,10 @@ def per_template(before: list[dict], after: list[dict]) -> str:
 def main() -> None:
     before, after = load("docs-only"), load("learned")
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "headline.svg").write_text(headline(before, after), encoding="utf-8")
-    (OUT / "by-task-type.svg").write_text(per_template(before, after), encoding="utf-8")
+    (OUT / "headline.svg").write_text(headline(before, after), encoding="utf-8", newline="\n")
+    (OUT / "by-task-type.svg").write_text(
+        per_template(before, after), encoding="utf-8", newline="\n"
+    )
     print(f"wrote {OUT / 'headline.svg'} and {OUT / 'by-task-type.svg'}")
 
 

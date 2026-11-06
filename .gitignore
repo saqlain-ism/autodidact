@@ -10,3 +10,4 @@ venv/
 /cache/
 *.sqlite3
 /learn/
+.vscode/

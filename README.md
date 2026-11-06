@@ -51,7 +51,7 @@ attempt side by side, without and with the notebook.
 | Step | What happened |
 |---|---|
 | StockRoom v1, no practice | 80% on 15 tasks: too easy. The agent recovers from errors, so error-only traps leave nothing to learn. |
-| StockRoom v2, no practice | 80% on 60 tasks, but 54% more requests per task: silent traps make it stumble. 10 of 12 failures come from learnable traps, including one attempt where it **forged its own pagination cursor** and skipped three pages. |
+| StockRoom v2, no practice | Still 80%, but on the same 15 tasks it needed 54% more requests (4.1 to 6.3 per task): silent traps make it stumble. On all 60 tasks, 10 of 12 failures come from learnable traps, including one attempt where it **forged its own pagination cursor**, skipped the last two pages and missed three products it had to update. |
 | Learner v1 | The notebook only restated the tool docs. In one transcript the agent ordered 6 of a 6-pack item, saw stock rise by 36 and reported "no surprises". |
 | Learner v2 | Practice now states expectations and compares numbers. The notebook found case packs, inactive suppliers, MOQ rules and SKU rules. |
 | Learned exam + repeat | The results above. |

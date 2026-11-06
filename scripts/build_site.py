@@ -116,6 +116,7 @@ def main() -> None:
         + json.dumps(data, ensure_ascii=False, separators=(",", ":"))
         + ";\n",
         encoding="utf-8",
+        newline="\n",  # same bytes on Windows, so rebuilding never shows as a change
     )
     print(f"wrote {out} ({out.stat().st_size // 1024} KB, {len(attempts)} paired attempts)")
 
