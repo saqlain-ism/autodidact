@@ -83,7 +83,15 @@ def _check_meta(out_dir: Path, meta: dict[str, Any]) -> None:
                     f"{out_dir} was created for {key}={old.get(key)!r}, "
                     f"not {meta[key]!r}. Use a different --out folder."
                 )
-        meta = {**old, "updated": meta["created"]}
+        # Keep the original creation details, but record every task and the
+        # largest repeat count ever requested, so meta.json describes the folder.
+        task_ids = list(dict.fromkeys([*old.get("task_ids", []), *meta["task_ids"]]))
+        meta = {
+            **old,
+            "runs": max(old.get("runs", 1), meta["runs"]),
+            "task_ids": task_ids,
+            "updated": meta["created"],
+        }
     path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
 

@@ -1,4 +1,4 @@
-"""Command line: ``autodidact doctor | eval | learn | report | show``."""
+"""Command line: ``autodidact doctor | eval | learn | compare | report | show``."""
 
 from __future__ import annotations
 
@@ -249,6 +249,25 @@ def cmd_learn(args: argparse.Namespace) -> int:
     return 0
 
 
+PACK_TEMPLATES = {"restock_one", "restock_category", "fulfil_or_backorder"}
+
+
+def cmd_compare(args: argparse.Namespace) -> int:
+    from autodidact.eval.compare import compare, format_comparison
+    from autodidact.eval.report import load
+
+    before, after = load(args.before), load(args.after)
+    if not before or not after:
+        print("both folders need results")
+        return 1
+    result = compare(before, after, groups={"case-pack tasks": PACK_TEMPLATES})
+    print(format_comparison(result, Path(args.before).name, Path(args.after).name))
+    if args.json:
+        Path(args.json).write_text(json.dumps(result, indent=2), encoding="utf-8")
+        print(f"\nwritten: {args.json}")
+    return 0
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     print(format_report(args.runs))
     return 0
@@ -321,6 +340,12 @@ def build_parser() -> argparse.ArgumentParser:
     lp.add_argument("--max-turns", type=int, default=20)
     lp.add_argument("--out", help="notebook folder (default: learn/<app>__<model>)")
     lp.set_defaults(func=cmd_learn)
+
+    cp = sub.add_parser("compare", help="paired before/after comparison of two run folders")
+    cp.add_argument("before")
+    cp.add_argument("after")
+    cp.add_argument("--json", help="also write the comparison to this JSON file")
+    cp.set_defaults(func=cmd_compare)
 
     r = sub.add_parser("report", help="summarise one or more run folders side by side")
     r.add_argument("runs", nargs="+")
