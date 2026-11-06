@@ -1,0 +1,204 @@
+{
+  "task_id": "inv-restock_one-3",
+  "template": "restock_one",
+  "tier": "hard",
+  "run": 0,
+  "condition": "learned",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Ordered 3 packs (18 units) from Ganga Bulk Mart via PO-5005, bringing stock to 44 units, and marked as received.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 10,
+  "tool_calls": 13,
+  "tool_errors": 1,
+  "prompt_tokens": 26642,
+  "completion_tokens": 324,
+  "requests": 10,
+  "seconds": 66.44,
+  "episode": {
+    "prompt": "We need more Nimbus Glass Cleaner 200g. Buy enough to bring stock up to at least 43 units from the supplier with the lowest unit cost that is still accepting orders, ordering as little as that supplier allows, and record the delivery as received.",
+    "answer": "Ordered 3 packs (18 units) from Ganga Bulk Mart via PO-5005, bringing stock to 44 units, and marked as received.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 66.44,
+    "usage": {
+      "prompt_tokens": 26642,
+      "completion_tokens": 324,
+      "requests": 10
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Nimbus Glass Cleaner 200g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0284\", \"name\": \"Nimbus Glass Cleaner 200g\", \"category\": \"Household\", \"unit_price_paise\": 32450, \"stock\": 26}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "HSH-0284"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"HSH-0284\", \"name\": \"Nimbus Glass Cleaner 200g\", \"category\": \"Household\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 32450, \"stock\": 26, \"reorder_level\": 8, \"archived\": false}"
+          },
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "HSH-0284"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"HSH-0284\", \"quotes\": [{\"supplier_id\": \"SUP-04\", \"supplier_name\": \"Konkan Trading House\", \"unit_cost_paise\": 25813, \"pack_size\": 12, \"moq\": 1}, {\"supplier_id\": \"SUP-07\", \"supplier_name\": \"Ganga Bulk Mart\", \"unit_cost_paise\": 25434, \"pack_size\": 6, \"moq\": 3}]}"
+          },
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "43 - 26"
+            },
+            "ok": true,
+            "result": "17"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-07"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-07\", \"name\": \"Ganga Bulk Mart\", \"city\": \"Chennai\", \"lead_time_days\": 6, \"status\": \"active\"}"
+          },
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-04"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-04\", \"name\": \"Konkan Trading House\", \"city\": \"Kochi\", \"lead_time_days\": 7, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "ceil(17 / 6)"
+            },
+            "ok": false,
+            "result": "ERROR: not allowed: ceil(17 / 6)"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "17 / 6"
+            },
+            "ok": true,
+            "result": "2.833333333333333333333333333333333333333"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "3 * 6"
+            },
+            "ok": true,
+            "result": "18"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "supplier_id": "SUP-07",
+              "lines": [
+                {
+                  "sku": "HSH-0284",
+                  "qty": 3
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"draft\", \"lines\": [{\"sku\": \"HSH-0284\", \"qty\": 3, \"pack_size\": 6, \"unit_cost_paise\": 25434}], \"total_cost_paise\": 457812}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"HSH-0284\", \"qty\": 3, \"pack_size\": 6, \"unit_cost_paise\": 25434}], \"total_cost_paise\": 457812}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "receive_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"received\", \"lines\": [{\"sku\": \"HSH-0284\", \"qty\": 3, \"pack_size\": 6, \"unit_cost_paise\": 25434}], \"total_cost_paise\": 457812}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Ordered 3 packs (18 units) from Ganga Bulk Mart via PO-5005, bringing stock to 44 units, and marked as received."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

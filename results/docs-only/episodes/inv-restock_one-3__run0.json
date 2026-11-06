@@ -1,0 +1,152 @@
+{
+  "task_id": "inv-restock_one-3",
+  "template": "restock_one",
+  "tier": "hard",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Ordered 3 packs (18 units) of Nimbus Glass Cleaner 200g from Ganga Bulk Mart via PO-5005 and recorded delivery as received.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 7,
+  "tool_calls": 9,
+  "tool_errors": 0,
+  "prompt_tokens": 21006,
+  "completion_tokens": 241,
+  "requests": 7,
+  "seconds": 29.45,
+  "episode": {
+    "prompt": "We need more Nimbus Glass Cleaner 200g. Buy enough to bring stock up to at least 43 units from the supplier with the lowest unit cost that is still accepting orders, ordering as little as that supplier allows, and record the delivery as received.",
+    "answer": "Ordered 3 packs (18 units) of Nimbus Glass Cleaner 200g from Ganga Bulk Mart via PO-5005 and recorded delivery as received.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 29.45,
+    "usage": {
+      "prompt_tokens": 21006,
+      "completion_tokens": 241,
+      "requests": 7
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Nimbus Glass Cleaner 200g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0284\", \"name\": \"Nimbus Glass Cleaner 200g\", \"category\": \"Household\", \"unit_price_paise\": 32450, \"stock\": 26}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "HSH-0284"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"HSH-0284\", \"quotes\": [{\"supplier_id\": \"SUP-04\", \"supplier_name\": \"Konkan Trading House\", \"unit_cost_paise\": 25813, \"pack_size\": 12, \"moq\": 1}, {\"supplier_id\": \"SUP-07\", \"supplier_name\": \"Ganga Bulk Mart\", \"unit_cost_paise\": 25434, \"pack_size\": 6, \"moq\": 3}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-04"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-04\", \"name\": \"Konkan Trading House\", \"city\": \"Kochi\", \"lead_time_days\": 7, \"status\": \"active\"}"
+          },
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-07"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-07\", \"name\": \"Ganga Bulk Mart\", \"city\": \"Chennai\", \"lead_time_days\": 6, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_purchase_orders",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"id\": \"PO-5001\", \"supplier_id\": \"SUP-01\", \"status\": \"received\", \"lines\": [{\"sku\": \"SNK-0398\", \"qty\": 2, \"pack_size\": 6, \"unit_cost_paise\": 13771}], \"total_cost_paise\": 165252}, {\"id\": \"PO-5002\", \"supplier_id\": \"SUP-08\", \"status\": \"received\", \"lines\": [{\"sku\": \"STP-0255\", \"qty\": 2, \"pack_size\": 1, \"unit_cost_paise\": 43040}], \"total_cost_paise\": 86080}, {\"id\": \"PO-5003\", \"supplier_id\": \"SUP-07\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"DRY-0254\", \"qty\": 2, \"pack_size\": 10, \"unit_cost_paise\": 4798}], \"total_cost_paise\": 95960}, {\"id\": \"PO-5004\", \"supplier_id\": \"SUP-05\", \"status\": \"draft\", \"lines\": [{\"sku\": \"PRC-0291\", \"qty\": 2, \"pack_size\": 24, \"unit_cost_paise\": 20547}], \"total_cost_paise\": 986256}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "supplier_id": "SUP-07",
+              "lines": [
+                {
+                  "qty": 3,
+                  "sku": "HSH-0284"
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"draft\", \"lines\": [{\"sku\": \"HSH-0284\", \"qty\": 3, \"pack_size\": 6, \"unit_cost_paise\": 25434}], \"total_cost_paise\": 457812}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"HSH-0284\", \"qty\": 3, \"pack_size\": 6, \"unit_cost_paise\": 25434}], \"total_cost_paise\": 457812}"
+          },
+          {
+            "name": "receive_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"received\", \"lines\": [{\"sku\": \"HSH-0284\", \"qty\": 3, \"pack_size\": 6, \"unit_cost_paise\": 25434}], \"total_cost_paise\": 457812}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Ordered 3 packs (18 units) of Nimbus Glass Cleaner 200g from Ganga Bulk Mart via PO-5005 and recorded delivery as received."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

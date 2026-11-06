@@ -1,0 +1,90 @@
+{
+  "task_id": "inv-record_damage-1",
+  "template": "record_damage",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Recorded 4 damaged units of Gully Aloe Face Wash 200ml (PRC-0309), reducing stock to 65.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 4,
+  "tool_calls": 4,
+  "tool_errors": 0,
+  "prompt_tokens": 8183,
+  "completion_tokens": 115,
+  "requests": 4,
+  "seconds": 17.47,
+  "episode": {
+    "prompt": "4 units of Gully Aloe Face Wash 200ml were found damaged in the storeroom. Record this in the inventory.",
+    "answer": "Recorded 4 damaged units of Gully Aloe Face Wash 200ml (PRC-0309), reducing stock to 65.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 17.47,
+    "usage": {
+      "prompt_tokens": 8183,
+      "completion_tokens": 115,
+      "requests": 4
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Gully Aloe Face Wash 200ml"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"PRC-0309\", \"name\": \"Gully Aloe Face Wash 200ml\", \"category\": \"Personal Care\", \"unit_price_paise\": 27650, \"stock\": 69}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_adjustment_reasons",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"reasons\": [\"damage\", \"expired\", \"theft\", \"count_correction\", \"customer_return\"]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "adjust_stock",
+            "arguments": {
+              "delta": -4,
+              "reason": "damage",
+              "sku": "PRC-0309"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"PRC-0309\", \"stock\": 65}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Recorded 4 damaged units of Gully Aloe Face Wash 200ml (PRC-0309), reducing stock to 65."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

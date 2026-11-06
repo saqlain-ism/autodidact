@@ -1,0 +1,82 @@
+{
+  "task_id": "inv-fulfil_or_backorder-3",
+  "template": "fulfil_or_backorder",
+  "tier": "hard",
+  "run": 0,
+  "condition": "learned",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Placed sales order SO-1031 for 5 x Kaveri Scrub Pad 1kg (sufficient stock available).",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 3,
+  "tool_errors": 0,
+  "prompt_tokens": 6918,
+  "completion_tokens": 102,
+  "requests": 3,
+  "seconds": 12.89,
+  "episode": {
+    "prompt": "Salim Ansari wants 5 x Kaveri Scrub Pad 1kg. If we have enough stock, just place the order. If not, place an order for everything we have, and raise a purchase order for the shortfall with the cheapest supplier that is still accepting orders (ordering as little as that supplier allows). Submit it, but it has not been delivered yet.",
+    "answer": "Placed sales order SO-1031 for 5 x Kaveri Scrub Pad 1kg (sufficient stock available).",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.89,
+    "usage": {
+      "prompt_tokens": 6918,
+      "completion_tokens": 102,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Kaveri Scrub Pad 1kg"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0246\", \"name\": \"Kaveri Scrub Pad 1kg\", \"category\": \"Household\", \"unit_price_paise\": 53000, \"stock\": 59}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_sales_order",
+            "arguments": {
+              "customer_name": "Salim Ansari",
+              "lines": [
+                {
+                  "sku": "HSH-0246",
+                  "qty": 5
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"SO-1031\", \"customer_name\": \"Salim Ansari\", \"status\": \"placed\", \"created_at\": \"2026-11-01T09:07:00\", \"lines\": [{\"sku\": \"HSH-0246\", \"qty\": 5, \"unit_price_paise\": 53000}], \"total_paise\": 265000}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Placed sales order SO-1031 for 5 x Kaveri Scrub Pad 1kg (sufficient stock available)."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

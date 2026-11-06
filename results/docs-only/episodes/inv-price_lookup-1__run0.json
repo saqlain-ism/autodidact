@@ -1,0 +1,76 @@
+{
+  "task_id": "inv-price_lookup-1",
+  "template": "price_lookup",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "52",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 3,
+  "tool_errors": 0,
+  "prompt_tokens": 5831,
+  "completion_tokens": 59,
+  "requests": 3,
+  "seconds": 9.59,
+  "episode": {
+    "prompt": "What is the selling price of Sunrise Body Lotion Pack of 6? Reply in rupees.",
+    "answer": "52",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 9.59,
+    "usage": {
+      "prompt_tokens": 5831,
+      "completion_tokens": 59,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Sunrise Body Lotion Pack of 6"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"PRC-0294\", \"name\": \"Sunrise Body Lotion Pack of 6\", \"category\": \"Personal Care\", \"unit_price_paise\": 5200, \"stock\": 101}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "5200 / 100"
+            },
+            "ok": true,
+            "result": "52"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "52"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

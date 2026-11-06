@@ -1,0 +1,74 @@
+{
+  "task_id": "inv-cancel_latest-2",
+  "template": "cancel_latest",
+  "tier": "medium",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": false,
+  "reason": "cancelled ['SO-1010'], expected SO-1028",
+  "answer": "Cancelled Neha Joshi's most recent order (SO-1010).",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 3,
+  "tool_errors": 0,
+  "prompt_tokens": 7029,
+  "completion_tokens": 67,
+  "requests": 3,
+  "seconds": 12.72,
+  "episode": {
+    "prompt": "Cancel Neha Joshi's most recent order.",
+    "answer": "Cancelled Neha Joshi's most recent order (SO-1010).",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.72,
+    "usage": {
+      "prompt_tokens": 7029,
+      "completion_tokens": 67,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_sales_orders",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"id\": \"SO-1001\", \"customer_name\": \"Asha Reddy\", \"status\": \"cancelled\", \"created_at\": \"2026-09-03T18:48:00\", \"total_paise\": 294700}, {\"id\": \"SO-1002\", \"customer_name\": \"Arjun Pillai\", \"status\": \"placed\", \"created_at\": \"2026-09-03T17:23:00\", \"total_paise\": 22600}, {\"id\": \"SO-1003\", \"customer_name\": \"Neha Joshi\", \"status\": \"placed\", \"created_at\": \"2026-09-04T13:47:00\", \"total_paise\": 210200}, {\"id\": \"SO-1004\", \"customer_name\": \"Imran Qureshi\", \"status\": \"cancelled\", \"created_at\": \"2026-09-06T12:59:00\", \"total_paise\": 55000}, {\"id\": \"SO-1005\", \"customer_name\": \"Asha Reddy\", \"status\": \"placed\", \"created_at\": \"2026-09-08T19:25:00\", \"total_paise\": 13750}, {\"id\": \"SO-1006\", \"customer_name\": \"Arjun Pillai\", \"status\": \"placed\", \"created_at\": \"2026-09-09T11:49:00\", \"total_paise\": 145900}, {\"id\": \"SO-1007\", \"customer_name\": \"Neha Joshi\", \"status\": \"cancelled\", \"created_at\": \"2026-09-11T11:37:00\", \"total_paise\": 27500}, {\"id\": \"SO-1008\", \"customer_name\": \"Karthik Nair\", \"status\": \"placed\", \"created_at\": \"2026-09-13T17:46:00\", \"total_paise\": 112900}, {\"id\": \"SO-1009\", \"customer_name\": \"Arjun Pillai\", \"status\": \"placed\", \"created_at\": \"2026-09-14T17:21:00\", \"total_paise\": 37400}, {\"id\": \"SO-1010\", \"customer_name\": \"Neha Joshi\", \"status\": \"placed\", \"created_at\": \"2026-09-16T18:15:00\", \"total_paise\": 167700}], \"next_cursor\": \"bzoxMA==\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "cancel_sales_order",
+            "arguments": {
+              "order_id": "SO-1010"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SO-1010\", \"customer_name\": \"Neha Joshi\", \"status\": \"cancelled\", \"created_at\": \"2026-09-16T18:15:00\", \"lines\": [{\"sku\": \"SNK-0364\", \"qty\": 3, \"unit_price_paise\": 49300}, {\"sku\": \"STP-0240\", \"qty\": 2, \"unit_price_paise\": 9900}], \"total_paise\": 167700}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Cancelled Neha Joshi's most recent order (SO-1010)."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "task_id": "inv-brand_max-1",
+  "template": "brand_max",
+  "tier": "medium",
+  "run": 0,
+  "condition": "learned",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "BEV-0301",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 7,
+  "tool_errors": 0,
+  "prompt_tokens": 7537,
+  "completion_tokens": 147,
+  "requests": 3,
+  "seconds": 52.16,
+  "episode": {
+    "prompt": "Among active products with \"Tarang\" in their name, which one has the highest selling price? Reply with its SKU.",
+    "answer": "BEV-0301",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 52.16,
+    "usage": {
+      "prompt_tokens": 7537,
+      "completion_tokens": 147,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Tarang"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"BEV-0274\", \"name\": \"Tarang Elaichi Tea 1L\", \"category\": \"Beverages\", \"unit_price_paise\": 27350, \"stock\": 63}, {\"sku\": \"BEV-0301\", \"name\": \"Tarang Green Tea 200g\", \"category\": \"Beverages\", \"unit_price_paise\": 59950, \"stock\": 134}, {\"sku\": \"BEV-0331\", \"name\": \"Tarang Mango Drink 200g\", \"category\": \"Beverages\", \"unit_price_paise\": 13450, \"stock\": 118}, {\"sku\": \"DRY-0247\", \"name\": \"Tarang Toned Milk 100g\", \"category\": \"Dairy\", \"unit_price_paise\": 43200, \"stock\": 28}, {\"sku\": \"SNK-0389\", \"name\": \"Tarang Banana Chips 100ml\", \"category\": \"Snacks\", \"unit_price_paise\": 4050, \"stock\": 79}], \"truncated\": true}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "BEV-0274"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"BEV-0274\", \"name\": \"Tarang Elaichi Tea 1L\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 27350, \"stock\": 63, \"reorder_level\": 6, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "BEV-0301"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"BEV-0301\", \"name\": \"Tarang Green Tea 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 59950, \"stock\": 134, \"reorder_level\": 13, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "BEV-0331"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"BEV-0331\", \"name\": \"Tarang Mango Drink 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 13450, \"stock\": 118, \"reorder_level\": 14, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0247"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0247\", \"name\": \"Tarang Toned Milk 100g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 43200, \"stock\": 28, \"reorder_level\": 14, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "SNK-0389"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"SNK-0389\", \"name\": \"Tarang Banana Chips 100ml\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 4050, \"stock\": 79, \"reorder_level\": 13, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "BEV-0301"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

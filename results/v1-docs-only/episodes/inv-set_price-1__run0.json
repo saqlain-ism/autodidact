@@ -1,0 +1,63 @@
+{
+  "task_id": "inv-set_price-1",
+  "template": "set_price",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Changed the selling price of DRY-0392 to ₹78.00.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 2,
+  "tool_calls": 2,
+  "tool_errors": 0,
+  "prompt_tokens": 3521,
+  "completion_tokens": 68,
+  "requests": 2,
+  "seconds": 12.28,
+  "episode": {
+    "prompt": "Change the selling price of DRY-0392 to ₹78.00.",
+    "answer": "Changed the selling price of DRY-0392 to ₹78.00.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.28,
+    "usage": {
+      "prompt_tokens": 3521,
+      "completion_tokens": 68,
+      "requests": 2
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "update_product_price",
+            "arguments": {
+              "unit_price_paise": 7800,
+              "sku": "DRY-0392"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0392\", \"name\": \"Nimbus Paneer Pack of 6\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 7800, \"stock\": 0, \"reorder_level\": 8, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Changed the selling price of DRY-0392 to ₹78.00."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

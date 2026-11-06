@@ -1,0 +1,84 @@
+{
+  "task_id": "inv-record_damage-1",
+  "template": "record_damage",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Recorded 3 damaged units of Kaveri Lip Balm 250g (SKU: PRC-0177); new stock is 98.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 4,
+  "tool_errors": 0,
+  "prompt_tokens": 5747,
+  "completion_tokens": 116,
+  "requests": 3,
+  "seconds": 17.59,
+  "episode": {
+    "prompt": "3 units of Kaveri Lip Balm 250g were found damaged in the storeroom. Record this in the inventory.",
+    "answer": "Recorded 3 damaged units of Kaveri Lip Balm 250g (SKU: PRC-0177); new stock is 98.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 17.59,
+    "usage": {
+      "prompt_tokens": 5747,
+      "completion_tokens": 116,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Kaveri Lip Balm 250g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"PRC-0177\", \"name\": \"Kaveri Lip Balm 250g\", \"category\": \"Personal Care\", \"unit_price_paise\": 5200, \"stock\": 101}], \"truncated\": false}"
+          },
+          {
+            "name": "list_adjustment_reasons",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"reasons\": [\"damage\", \"expired\", \"theft\", \"count_correction\", \"customer_return\"]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "adjust_stock",
+            "arguments": {
+              "delta": -3,
+              "reason": "damage",
+              "sku": "PRC-0177"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"PRC-0177\", \"stock\": 98}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Recorded 3 damaged units of Kaveri Lip Balm 250g (SKU: PRC-0177); new stock is 98."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

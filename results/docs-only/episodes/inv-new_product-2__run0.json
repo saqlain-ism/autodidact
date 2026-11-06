@@ -1,0 +1,159 @@
+{
+  "task_id": "inv-new_product-2",
+  "template": "new_product",
+  "tier": "medium",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Registered supplier Tapti Traders (SUP-09) and created product Pragati Rabri 200g with SKU DRY-0304 in Dairy.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 7,
+  "tool_calls": 10,
+  "tool_errors": 1,
+  "prompt_tokens": 21860,
+  "completion_tokens": 261,
+  "requests": 7,
+  "seconds": 30.97,
+  "episode": {
+    "prompt": "We're adding a new product: Pragati Rabri 200g, in Dairy, selling at ₹196.00. It comes from a new supplier, Tapti Traders in Jalgaon, with a lead time of 6 days. Register the supplier and create the product using the next unused SKU number in that category.",
+    "answer": "Registered supplier Tapti Traders (SUP-09) and created product Pragati Rabri 200g with SKU DRY-0304 in Dairy.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 30.97,
+    "usage": {
+      "prompt_tokens": 21860,
+      "completion_tokens": 261,
+      "requests": 7
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "Dairy"
+            },
+            "ok": true,
+            "result": "{\"items\": [], \"next_cursor\": null}"
+          },
+          {
+            "name": "create_supplier",
+            "arguments": {
+              "name": "Tapti Traders",
+              "lead_time_days": 6,
+              "city": "Jalgaon"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-09\", \"name\": \"Tapti Traders\", \"city\": \"Jalgaon\", \"lead_time_days\": 6, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_categories",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"code\": \"BEV\", \"name\": \"Beverages\"}, {\"code\": \"DRY\", \"name\": \"Dairy\"}, {\"code\": \"HSH\", \"name\": \"Household\"}, {\"code\": \"PRC\", \"name\": \"Personal Care\"}, {\"code\": \"SNK\", \"name\": \"Snacks\"}, {\"code\": \"STP\", \"name\": \"Staples\"}]}"
+          },
+          {
+            "name": "list_products",
+            "arguments": {
+              "page_size": 50
+            },
+            "ok": false,
+            "result": "ERROR: E_VALIDATION: invalid page_size"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"BEV-0274\", \"name\": \"Tarang Elaichi Tea 1L\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 27350, \"stock\": 63}, {\"sku\": \"BEV-0282\", \"name\": \"Himgiri Cold Coffee 200ml\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 55200, \"stock\": 76}, {\"sku\": \"BEV-0291\", \"name\": \"Mitti Rose Sharbat 100g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 26350, \"stock\": 37}, {\"sku\": \"BEV-0295\", \"name\": \"Himgiri Ginger Tea Pack of 6\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 13350, \"stock\": 136}, {\"sku\": \"BEV-0301\", \"name\": \"Tarang Green Tea 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 59950, \"stock\": 134}, {\"sku\": \"BEV-0305\", \"name\": \"Desi Farm Masala Tea Pack of 6\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 36000, \"stock\": 37}, {\"sku\": \"BEV-0307\", \"name\": \"Sunrise Instant Coffee 1kg\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 39500, \"stock\": 36}, {\"sku\": \"BEV-0311\", \"name\": \"Nimbus Kokum Syrup 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 4900, \"stock\": 93}, {\"sku\": \"BEV-0315\", \"name\": \"Sunrise Jaljeera Mix 1kg\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 34500, \"stock\": 53}, {\"sku\": \"BEV-0322\", \"name\": \"Desi Farm Filter Coffee 500g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 3900, \"stock\": 5}], \"next_cursor\": \"bzoxMA==\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "DRY"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"DRY-0247\", \"name\": \"Tarang Toned Milk 100g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 43200, \"stock\": 28}, {\"sku\": \"DRY-0254\", \"name\": \"Kaveri Paneer 100g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 7900, \"stock\": 4}, {\"sku\": \"DRY-0255\", \"name\": \"Nimbus Khoa 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 9500, \"stock\": 111}, {\"sku\": \"DRY-0265\", \"name\": \"Kaveri Cheese Slices 1L\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 59300, \"stock\": 139}, {\"sku\": \"DRY-0271\", \"name\": \"Nimbus Ghee 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 11700, \"stock\": 107}, {\"sku\": \"DRY-0280\", \"name\": \"Mitti Lassi 500g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 2900, \"stock\": 69}, {\"sku\": \"DRY-0287\", \"name\": \"Sunrise Shrikhand 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 3100, \"stock\": 65}, {\"sku\": \"DRY-0294\", \"name\": \"Desi Farm Curd 100ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 13750, \"stock\": 119}, {\"sku\": \"DRY-0295\", \"name\": \"Gully Butter 1L\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 29550, \"stock\": 119}, {\"sku\": \"DRY-0296\", \"name\": \"Gully Cream 500ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 12750, \"stock\": 107}], \"next_cursor\": \"bzoxMA==\"}"
+          },
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "Dairy"
+            },
+            "ok": true,
+            "result": "{\"items\": [], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "DRY",
+              "cursor": "bzoxMA=="
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"DRY-0303\", \"name\": \"Mitti Milk Powder 500ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 28600, \"stock\": 7}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_product",
+            "arguments": {
+              "category": "Dairy",
+              "unit_price_paise": 19600,
+              "supplier_id": "SUP-09",
+              "sku": "DRY-0304",
+              "name": "Pragati Rabri 200g"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0304\", \"name\": \"Pragati Rabri 200g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-09\", \"unit_price_paise\": 19600, \"stock\": 0, \"reorder_level\": 10, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Registered supplier Tapti Traders (SUP-09) and created product Pragati Rabri 200g with SKU DRY-0304 in Dairy."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

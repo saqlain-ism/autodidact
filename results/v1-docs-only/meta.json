@@ -1,0 +1,25 @@
+{
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "runs": 1,
+  "task_ids": [
+    "inv-price_lookup-1",
+    "inv-stock_lookup-1",
+    "inv-set_price-1",
+    "inv-record_damage-1",
+    "inv-supplier_city-1",
+    "inv-new_product-1",
+    "inv-count_active-1",
+    "inv-place_order-1",
+    "inv-cancel_latest-1",
+    "inv-brand_max-1",
+    "inv-restock_one-1",
+    "inv-restock_category-1",
+    "inv-stock_value-1",
+    "inv-price_hike-1",
+    "inv-fulfil_or_backorder-1"
+  ],
+  "max_turns": 25,
+  "knowledge_chars": 0,
+  "created": "2026-11-05T02:04:35"
+}

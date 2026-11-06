@@ -1,0 +1,89 @@
+{
+  "task_id": "inv-stock_value-3",
+  "template": "stock_value",
+  "tier": "hard",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "94327.50",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 4,
+  "tool_calls": 4,
+  "tool_errors": 0,
+  "prompt_tokens": 9899,
+  "completion_tokens": 179,
+  "requests": 4,
+  "seconds": 16.45,
+  "episode": {
+    "prompt": "What is the total retail value of the stock we hold for active products in Staples (selling price x units in stock, summed over products)? Answer in rupees.",
+    "answer": "94327.50",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 16.45,
+    "usage": {
+      "prompt_tokens": 9899,
+      "completion_tokens": 179,
+      "requests": 4
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_categories",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"code\": \"BEV\", \"name\": \"Beverages\"}, {\"code\": \"DRY\", \"name\": \"Dairy\"}, {\"code\": \"HSH\", \"name\": \"Household\"}, {\"code\": \"PRC\", \"name\": \"Personal Care\"}, {\"code\": \"SNK\", \"name\": \"Snacks\"}, {\"code\": \"STP\", \"name\": \"Staples\"}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "include_archived": false,
+              "category": "STP"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"STP-0223\", \"name\": \"Nimbus Poha 1kg\", \"category\": \"Staples\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 4750, \"stock\": 1}, {\"sku\": \"STP-0239\", \"name\": \"Tarang Sona Masoori Rice 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 29800, \"stock\": 4}, {\"sku\": \"STP-0240\", \"name\": \"Gully Chana Dal 1kg\", \"category\": \"Staples\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 9900, \"stock\": 26}, {\"sku\": \"STP-0241\", \"name\": \"Himgiri Rock Salt 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 44400, \"stock\": 15}, {\"sku\": \"STP-0244\", \"name\": \"Sunrise Rava 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 13700, \"stock\": 150}, {\"sku\": \"STP-0248\", \"name\": \"Tarang Atta 100ml\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 8950, \"stock\": 59}, {\"sku\": \"STP-0249\", \"name\": \"Nimbus Mustard Oil Pack of 6\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 53800, \"stock\": 17}, {\"sku\": \"STP-0255\", \"name\": \"Mitti Sugar 200g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 51900, \"stock\": 19}, {\"sku\": \"STP-0262\", \"name\": \"Kaveri Toor Dal 500g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 9450, \"stock\": 73}, {\"sku\": \"STP-0278\", \"name\": \"Sunrise Groundnut Oil 100ml\", \"category\": \"Staples\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 30300, \"stock\": 106}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "(4750 * 1 + 29800 * 4 + 9900 * 26 + 44400 * 15 + 13700 * 150 + 8950 * 59 + 53800 * 17 + 51900 * 19 + 9450 * 73 + 30300 * 106) / 100"
+            },
+            "ok": true,
+            "result": "94327.5"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "94327.50"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

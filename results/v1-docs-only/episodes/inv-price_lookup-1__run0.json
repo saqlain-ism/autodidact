@@ -1,0 +1,76 @@
+{
+  "task_id": "inv-price_lookup-1",
+  "template": "price_lookup",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "193.50 rupees",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 3,
+  "tool_errors": 0,
+  "prompt_tokens": 5414,
+  "completion_tokens": 66,
+  "requests": 3,
+  "seconds": 12.95,
+  "episode": {
+    "prompt": "What is the selling price of Tarang Body Lotion 250g? Reply in rupees.",
+    "answer": "193.50 rupees",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.95,
+    "usage": {
+      "prompt_tokens": 5414,
+      "completion_tokens": 66,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Tarang Body Lotion 250g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"PRC-0166\", \"name\": \"Tarang Body Lotion 250g\", \"category\": \"Personal Care\", \"unit_price_paise\": 19350, \"stock\": 136}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "PRC-0166"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"PRC-0166\", \"name\": \"Tarang Body Lotion 250g\", \"category\": \"Personal Care\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 19350, \"stock\": 136, \"reorder_level\": 12, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "193.50 rupees"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

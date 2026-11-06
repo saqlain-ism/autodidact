@@ -1,0 +1,154 @@
+{
+  "task_id": "inv-restock_one-2",
+  "template": "restock_one",
+  "tier": "hard",
+  "run": 1,
+  "condition": "learned",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Ordered 24 packs of Tarang Banana Chips 100ml from Coromandel Agencies via purchase order PO-5005 and marked as received.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 7,
+  "tool_calls": 9,
+  "tool_errors": 0,
+  "prompt_tokens": 20022,
+  "completion_tokens": 250,
+  "requests": 7,
+  "seconds": 29.92,
+  "episode": {
+    "prompt": "We need more Tarang Banana Chips 100ml. Buy enough to bring stock up to at least 103 units from the supplier with the lowest unit cost that is still accepting orders, ordering as little as that supplier allows, and record the delivery as received.",
+    "answer": "Ordered 24 packs of Tarang Banana Chips 100ml from Coromandel Agencies via purchase order PO-5005 and marked as received.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 29.92,
+    "usage": {
+      "prompt_tokens": 20022,
+      "completion_tokens": 250,
+      "requests": 7
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Tarang Banana Chips 100ml"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"SNK-0389\", \"name\": \"Tarang Banana Chips 100ml\", \"category\": \"Snacks\", \"unit_price_paise\": 4050, \"stock\": 79}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "SNK-0389"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"SNK-0389\", \"quotes\": [{\"supplier_id\": \"SUP-02\", \"supplier_name\": \"Satpura Supplies\", \"unit_cost_paise\": 2570, \"pack_size\": 10, \"moq\": 2}, {\"supplier_id\": \"SUP-08\", \"supplier_name\": \"Coromandel Agencies\", \"unit_cost_paise\": 2984, \"pack_size\": 1, \"moq\": 1}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-02"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-02\", \"name\": \"Satpura Supplies\", \"city\": \"Indore\", \"lead_time_days\": 4, \"status\": \"inactive\"}"
+          },
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-08"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-08\", \"name\": \"Coromandel Agencies\", \"city\": \"Hyderabad\", \"lead_time_days\": 2, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "103 - 79"
+            },
+            "ok": true,
+            "result": "24"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "supplier_id": "SUP-08",
+              "lines": [
+                {
+                  "qty": 24,
+                  "sku": "SNK-0389"
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-08\", \"status\": \"draft\", \"lines\": [{\"sku\": \"SNK-0389\", \"qty\": 24, \"pack_size\": 1, \"unit_cost_paise\": 2984}], \"total_cost_paise\": 71616}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-08\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"SNK-0389\", \"qty\": 24, \"pack_size\": 1, \"unit_cost_paise\": 2984}], \"total_cost_paise\": 71616}"
+          },
+          {
+            "name": "receive_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-08\", \"status\": \"received\", \"lines\": [{\"sku\": \"SNK-0389\", \"qty\": 24, \"pack_size\": 1, \"unit_cost_paise\": 2984}], \"total_cost_paise\": 71616}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Ordered 24 packs of Tarang Banana Chips 100ml from Coromandel Agencies via purchase order PO-5005 and marked as received."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

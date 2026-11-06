@@ -1,0 +1,108 @@
+{
+  "task_id": "inv-brand_max-1",
+  "template": "brand_max",
+  "tier": "medium",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": false,
+  "reason": "answered ['BEV-0043'], expected SNK-0197",
+  "answer": "BEV-0043",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 7,
+  "tool_errors": 0,
+  "prompt_tokens": 6268,
+  "completion_tokens": 146,
+  "requests": 3,
+  "seconds": 18.28,
+  "episode": {
+    "prompt": "Among active products with \"Nimbus\" in their name, which one has the highest selling price? Reply with its SKU.",
+    "answer": "BEV-0043",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 18.28,
+    "usage": {
+      "prompt_tokens": 6268,
+      "completion_tokens": 146,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Nimbus"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"BEV-0043\", \"name\": \"Nimbus Green Tea 1kg\", \"category\": \"Beverages\", \"unit_price_paise\": 46600, \"stock\": 36}, {\"sku\": \"BEV-0054\", \"name\": \"Nimbus Instant Coffee 500g\", \"category\": \"Beverages\", \"unit_price_paise\": 5750, \"stock\": 61}, {\"sku\": \"DRY-0366\", \"name\": \"Nimbus Shrikhand 200g\", \"category\": \"Dairy\", \"unit_price_paise\": 8700, \"stock\": 61}, {\"sku\": \"DRY-0376\", \"name\": \"Nimbus Curd 100g\", \"category\": \"Dairy\", \"unit_price_paise\": 26650, \"stock\": 28}, {\"sku\": \"DRY-0392\", \"name\": \"Nimbus Paneer Pack of 6\", \"category\": \"Dairy\", \"unit_price_paise\": 7100, \"stock\": 0}], \"truncated\": true}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "BEV-0043"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"BEV-0043\", \"name\": \"Nimbus Green Tea 1kg\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-06\", \"unit_price_paise\": 46600, \"stock\": 36, \"reorder_level\": 11, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "BEV-0054"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"BEV-0054\", \"name\": \"Nimbus Instant Coffee 500g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-02\", \"unit_price_paise\": 5750, \"stock\": 61, \"reorder_level\": 23, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0366"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0366\", \"name\": \"Nimbus Shrikhand 200g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 8700, \"stock\": 61, \"reorder_level\": 23, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0376"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0376\", \"name\": \"Nimbus Curd 100g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 26650, \"stock\": 28, \"reorder_level\": 29, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0392"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0392\", \"name\": \"Nimbus Paneer Pack of 6\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 7100, \"stock\": 0, \"reorder_level\": 8, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "BEV-0043"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "task_id": "inv-record_damage-2",
+  "template": "record_damage",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Recorded damage of 3 units for Gully Butter 1L (SKU: DRY-0295). Current stock is now 116.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 4,
+  "tool_errors": 0,
+  "prompt_tokens": 6027,
+  "completion_tokens": 112,
+  "requests": 3,
+  "seconds": 12.95,
+  "episode": {
+    "prompt": "3 units of Gully Butter 1L were found damaged in the storeroom. Record this in the inventory.",
+    "answer": "Recorded damage of 3 units for Gully Butter 1L (SKU: DRY-0295). Current stock is now 116.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.95,
+    "usage": {
+      "prompt_tokens": 6027,
+      "completion_tokens": 112,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Gully Butter 1L"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"DRY-0295\", \"name\": \"Gully Butter 1L\", \"category\": \"Dairy\", \"unit_price_paise\": 29550, \"stock\": 119}], \"truncated\": false}"
+          },
+          {
+            "name": "list_adjustment_reasons",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"reasons\": [\"damage\", \"expired\", \"theft\", \"count_correction\", \"customer_return\"]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "adjust_stock",
+            "arguments": {
+              "sku": "DRY-0295",
+              "reason": "damage",
+              "delta": -3
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0295\", \"stock\": 116}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Recorded damage of 3 units for Gully Butter 1L (SKU: DRY-0295). Current stock is now 116."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

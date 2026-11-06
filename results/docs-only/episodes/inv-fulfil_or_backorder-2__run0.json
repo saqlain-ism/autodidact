@@ -1,0 +1,166 @@
+{
+  "task_id": "inv-fulfil_or_backorder-2",
+  "template": "fulfil_or_backorder",
+  "tier": "hard",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": false,
+  "reason": "ordered [('SUP-07', 'DRY-0254', 10)], expected [('SUP-07', 'DRY-0254', 1)]",
+  "answer": "Placed sales order for 4 units and submitted a purchase order for 10 units to Ganga Bulk Mart.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 8,
+  "tool_calls": 9,
+  "tool_errors": 0,
+  "prompt_tokens": 18612,
+  "completion_tokens": 256,
+  "requests": 8,
+  "seconds": 33.64,
+  "episode": {
+    "prompt": "Harish Menon wants 8 x Kaveri Paneer 100g. If we have enough stock, just place the order. If not, place an order for everything we have, and raise a purchase order for the shortfall with the cheapest supplier that is still accepting orders (ordering as little as that supplier allows). Submit it, but it has not been delivered yet.",
+    "answer": "Placed sales order for 4 units and submitted a purchase order for 10 units to Ganga Bulk Mart.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 33.64,
+    "usage": {
+      "prompt_tokens": 18612,
+      "completion_tokens": 256,
+      "requests": 8
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Kaveri Paneer 100g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"DRY-0254\", \"name\": \"Kaveri Paneer 100g\", \"category\": \"Dairy\", \"unit_price_paise\": 7900, \"stock\": 4}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "DRY-0254"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0254\", \"quotes\": [{\"supplier_id\": \"SUP-06\", \"supplier_name\": \"Kaveri Traders\", \"unit_cost_paise\": 6457, \"pack_size\": 10, \"moq\": 1}, {\"supplier_id\": \"SUP-07\", \"supplier_name\": \"Ganga Bulk Mart\", \"unit_cost_paise\": 4798, \"pack_size\": 10, \"moq\": 1}, {\"supplier_id\": \"SUP-08\", \"supplier_name\": \"Coromandel Agencies\", \"unit_cost_paise\": 6679, \"pack_size\": 24, \"moq\": 1}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-07"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-07\", \"name\": \"Ganga Bulk Mart\", \"city\": \"Chennai\", \"lead_time_days\": 6, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-06"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-06\", \"name\": \"Kaveri Traders\", \"city\": \"Indore\", \"lead_time_days\": 3, \"status\": \"inactive\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-08"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-08\", \"name\": \"Coromandel Agencies\", \"city\": \"Hyderabad\", \"lead_time_days\": 2, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_sales_order",
+            "arguments": {
+              "customer_name": "Harish Menon",
+              "lines": [
+                {
+                  "sku": "DRY-0254",
+                  "qty": 4
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"SO-1031\", \"customer_name\": \"Harish Menon\", \"status\": \"placed\", \"created_at\": \"2026-11-01T09:07:00\", \"lines\": [{\"sku\": \"DRY-0254\", \"qty\": 4, \"unit_price_paise\": 7900}], \"total_paise\": 31600}"
+          },
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "lines": [
+                {
+                  "qty": 10,
+                  "sku": "DRY-0254"
+                }
+              ],
+              "supplier_id": "SUP-07"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"draft\", \"lines\": [{\"sku\": \"DRY-0254\", \"qty\": 10, \"pack_size\": 10, \"unit_cost_paise\": 4798}], \"total_cost_paise\": 479800}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"DRY-0254\", \"qty\": 10, \"pack_size\": 10, \"unit_cost_paise\": 4798}], \"total_cost_paise\": 479800}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Placed sales order for 4 units and submitted a purchase order for 10 units to Ganga Bulk Mart."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

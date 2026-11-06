@@ -1,0 +1,136 @@
+{
+  "task_id": "inv-count_active-3",
+  "template": "count_active",
+  "tier": "medium",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "12",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 7,
+  "tool_calls": 7,
+  "tool_errors": 1,
+  "prompt_tokens": 16270,
+  "completion_tokens": 155,
+  "requests": 7,
+  "seconds": 29.86,
+  "episode": {
+    "prompt": "How many active (not archived) products are there in the Beverages category?",
+    "answer": "12",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 29.86,
+    "usage": {
+      "prompt_tokens": 16270,
+      "completion_tokens": 155,
+      "requests": 7
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "include_archived": false,
+              "page_size": 50,
+              "category": "Beverages"
+            },
+            "ok": false,
+            "result": "ERROR: E_VALIDATION: invalid page_size"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "include_archived": false,
+              "category": "Beverages"
+            },
+            "ok": true,
+            "result": "{\"items\": [], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_categories",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"code\": \"BEV\", \"name\": \"Beverages\"}, {\"code\": \"DRY\", \"name\": \"Dairy\"}, {\"code\": \"HSH\", \"name\": \"Household\"}, {\"code\": \"PRC\", \"name\": \"Personal Care\"}, {\"code\": \"SNK\", \"name\": \"Snacks\"}, {\"code\": \"STP\", \"name\": \"Staples\"}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "include_archived": false,
+              "category": "BEV"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"BEV-0274\", \"name\": \"Tarang Elaichi Tea 1L\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 27350, \"stock\": 63}, {\"sku\": \"BEV-0282\", \"name\": \"Himgiri Cold Coffee 200ml\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 55200, \"stock\": 76}, {\"sku\": \"BEV-0291\", \"name\": \"Mitti Rose Sharbat 100g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 26350, \"stock\": 37}, {\"sku\": \"BEV-0295\", \"name\": \"Himgiri Ginger Tea Pack of 6\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 13350, \"stock\": 136}, {\"sku\": \"BEV-0301\", \"name\": \"Tarang Green Tea 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 59950, \"stock\": 134}, {\"sku\": \"BEV-0305\", \"name\": \"Desi Farm Masala Tea Pack of 6\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 36000, \"stock\": 37}, {\"sku\": \"BEV-0307\", \"name\": \"Sunrise Instant Coffee 1kg\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 39500, \"stock\": 36}, {\"sku\": \"BEV-0311\", \"name\": \"Nimbus Kokum Syrup 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 4900, \"stock\": 93}, {\"sku\": \"BEV-0315\", \"name\": \"Sunrise Jaljeera Mix 1kg\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 34500, \"stock\": 53}, {\"sku\": \"BEV-0322\", \"name\": \"Desi Farm Filter Coffee 500g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 3900, \"stock\": 5}], \"next_cursor\": \"bzoxMA==\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "cursor": "bzoxMA==",
+              "include_archived": false,
+              "category": "BEV"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"BEV-0326\", \"name\": \"Nimbus Lemon Squash 200ml\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 36000, \"stock\": 57}, {\"sku\": \"BEV-0331\", \"name\": \"Tarang Mango Drink 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 13450, \"stock\": 118}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "10 + 2"
+            },
+            "ok": true,
+            "result": "12"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "12"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

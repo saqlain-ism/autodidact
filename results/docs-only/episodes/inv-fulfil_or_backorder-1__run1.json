@@ -1,0 +1,82 @@
+{
+  "task_id": "inv-fulfil_or_backorder-1",
+  "template": "fulfil_or_backorder",
+  "tier": "hard",
+  "run": 1,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Placed sales order SO-1031 for 3 x Kaveri Cheese Slices 1L (DRY-0265) for Naveen Choudhary.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 3,
+  "tool_errors": 0,
+  "prompt_tokens": 6250,
+  "completion_tokens": 116,
+  "requests": 3,
+  "seconds": 12.62,
+  "episode": {
+    "prompt": "Naveen Choudhary wants 3 x Kaveri Cheese Slices 1L. If we have enough stock, just place the order. If not, place an order for everything we have, and raise a purchase order for the shortfall with the cheapest supplier that is still accepting orders (ordering as little as that supplier allows). Submit it, but it has not been delivered yet.",
+    "answer": "Placed sales order SO-1031 for 3 x Kaveri Cheese Slices 1L (DRY-0265) for Naveen Choudhary.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.62,
+    "usage": {
+      "prompt_tokens": 6250,
+      "completion_tokens": 116,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Kaveri Cheese Slices 1L"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"DRY-0265\", \"name\": \"Kaveri Cheese Slices 1L\", \"category\": \"Dairy\", \"unit_price_paise\": 59300, \"stock\": 139}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_sales_order",
+            "arguments": {
+              "lines": [
+                {
+                  "qty": 3,
+                  "sku": "DRY-0265"
+                }
+              ],
+              "customer_name": "Naveen Choudhary"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SO-1031\", \"customer_name\": \"Naveen Choudhary\", \"status\": \"placed\", \"created_at\": \"2026-11-01T09:07:00\", \"lines\": [{\"sku\": \"DRY-0265\", \"qty\": 3, \"unit_price_paise\": 59300}], \"total_paise\": 177900}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Placed sales order SO-1031 for 3 x Kaveri Cheese Slices 1L (DRY-0265) for Naveen Choudhary."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

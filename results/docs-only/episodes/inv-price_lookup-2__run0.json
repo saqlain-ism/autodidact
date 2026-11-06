@@ -1,0 +1,76 @@
+{
+  "task_id": "inv-price_lookup-2",
+  "template": "price_lookup",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "₹263.50",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 3,
+  "tool_errors": 0,
+  "prompt_tokens": 5715,
+  "completion_tokens": 68,
+  "requests": 3,
+  "seconds": 9.53,
+  "episode": {
+    "prompt": "What is the selling price of Mitti Rose Sharbat 100g? Reply in rupees.",
+    "answer": "₹263.50",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 9.53,
+    "usage": {
+      "prompt_tokens": 5715,
+      "completion_tokens": 68,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Mitti Rose Sharbat 100g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"BEV-0291\", \"name\": \"Mitti Rose Sharbat 100g\", \"category\": \"Beverages\", \"unit_price_paise\": 26350, \"stock\": 37}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "calculate",
+            "arguments": {
+              "expression": "26350 / 100"
+            },
+            "ok": true,
+            "result": "263.5"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "₹263.50"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

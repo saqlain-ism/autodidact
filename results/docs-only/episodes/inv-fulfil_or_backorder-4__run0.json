@@ -1,0 +1,138 @@
+{
+  "task_id": "inv-fulfil_or_backorder-4",
+  "template": "fulfil_or_backorder",
+  "tier": "hard",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": false,
+  "reason": "ordered [('SUP-03', 'STP-0223', 8)], expected [('SUP-03', 'STP-0223', 2)]",
+  "answer": "Placed sales order for 1 unit available in stock and raised/submitted purchase order PO-5005 for the shortfall of 8 units with Sahyadri Distributors.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 6,
+  "tool_calls": 7,
+  "tool_errors": 0,
+  "prompt_tokens": 16085,
+  "completion_tokens": 222,
+  "requests": 6,
+  "seconds": 27.62,
+  "episode": {
+    "prompt": "Ritu Agarwal wants 9 x Nimbus Poha 1kg. If we have enough stock, just place the order. If not, place an order for everything we have, and raise a purchase order for the shortfall with the cheapest supplier that is still accepting orders (ordering as little as that supplier allows). Submit it, but it has not been delivered yet.",
+    "answer": "Placed sales order for 1 unit available in stock and raised/submitted purchase order PO-5005 for the shortfall of 8 units with Sahyadri Distributors.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 27.62,
+    "usage": {
+      "prompt_tokens": 16085,
+      "completion_tokens": 222,
+      "requests": 6
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Nimbus Poha 1kg"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"STP-0223\", \"name\": \"Nimbus Poha 1kg\", \"category\": \"Staples\", \"unit_price_paise\": 4750, \"stock\": 1}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_sales_order",
+            "arguments": {
+              "customer_name": "Ritu Agarwal",
+              "lines": [
+                {
+                  "sku": "STP-0223",
+                  "qty": 1
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"SO-1031\", \"customer_name\": \"Ritu Agarwal\", \"status\": \"placed\", \"created_at\": \"2026-11-01T09:07:00\", \"lines\": [{\"sku\": \"STP-0223\", \"qty\": 1, \"unit_price_paise\": 4750}], \"total_paise\": 4750}"
+          },
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "STP-0223"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"STP-0223\", \"quotes\": [{\"supplier_id\": \"SUP-03\", \"supplier_name\": \"Sahyadri Distributors\", \"unit_cost_paise\": 3778, \"pack_size\": 6, \"moq\": 1}, {\"supplier_id\": \"SUP-08\", \"supplier_name\": \"Coromandel Agencies\", \"unit_cost_paise\": 3939, \"pack_size\": 1, \"moq\": 1}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-03"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-03\", \"name\": \"Sahyadri Distributors\", \"city\": \"Kochi\", \"lead_time_days\": 5, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "supplier_id": "SUP-03",
+              "lines": [
+                {
+                  "sku": "STP-0223",
+                  "qty": 8
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-03\", \"status\": \"draft\", \"lines\": [{\"sku\": \"STP-0223\", \"qty\": 8, \"pack_size\": 6, \"unit_cost_paise\": 3778}], \"total_cost_paise\": 181344}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-03\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"STP-0223\", \"qty\": 8, \"pack_size\": 6, \"unit_cost_paise\": 3778}], \"total_cost_paise\": 181344}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Placed sales order for 1 unit available in stock and raised/submitted purchase order PO-5005 for the shortfall of 8 units with Sahyadri Distributors."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

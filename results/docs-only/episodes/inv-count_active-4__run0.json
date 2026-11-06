@@ -1,0 +1,88 @@
+{
+  "task_id": "inv-count_active-4",
+  "template": "count_active",
+  "tier": "medium",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "10",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 4,
+  "tool_calls": 4,
+  "tool_errors": 0,
+  "prompt_tokens": 8757,
+  "completion_tokens": 59,
+  "requests": 4,
+  "seconds": 17.94,
+  "episode": {
+    "prompt": "How many active (not archived) products are there in the Snacks category?",
+    "answer": "10",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 17.94,
+    "usage": {
+      "prompt_tokens": 8757,
+      "completion_tokens": 59,
+      "requests": 4
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "Snacks"
+            },
+            "ok": true,
+            "result": "{\"items\": [], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_categories",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"code\": \"BEV\", \"name\": \"Beverages\"}, {\"code\": \"DRY\", \"name\": \"Dairy\"}, {\"code\": \"HSH\", \"name\": \"Household\"}, {\"code\": \"PRC\", \"name\": \"Personal Care\"}, {\"code\": \"SNK\", \"name\": \"Snacks\"}, {\"code\": \"STP\", \"name\": \"Staples\"}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "SNK"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"SNK-0364\", \"name\": \"Gully Mathri Pack of 6\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 49300, \"stock\": 9}, {\"sku\": \"SNK-0369\", \"name\": \"Himgiri Chakli 200ml\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 41700, \"stock\": 69}, {\"sku\": \"SNK-0371\", \"name\": \"Gully Chikki 1L\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 46050, \"stock\": 128}, {\"sku\": \"SNK-0378\", \"name\": \"Kaveri Khakhra 500ml\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 25850, \"stock\": 87}, {\"sku\": \"SNK-0380\", \"name\": \"Nimbus Masala Peanuts 250g\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 13850, \"stock\": 64}, {\"sku\": \"SNK-0388\", \"name\": \"Desi Farm Murukku 100g\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 7400, \"stock\": 4}, {\"sku\": \"SNK-0389\", \"name\": \"Tarang Banana Chips 100ml\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 4050, \"stock\": 79}, {\"sku\": \"SNK-0398\", \"name\": \"Sunrise Coconut Cookies 200ml\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 18650, \"stock\": 82}, {\"sku\": \"SNK-0403\", \"name\": \"Gully Aloo Bhujia 1L\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 30050, \"stock\": 111}, {\"sku\": \"SNK-0408\", \"name\": \"Kaveri Rusk 500ml\", \"category\": \"Snacks\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 10250, \"stock\": 58}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "10"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

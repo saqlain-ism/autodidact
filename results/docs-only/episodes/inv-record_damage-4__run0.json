@@ -1,0 +1,84 @@
+{
+  "task_id": "inv-record_damage-4",
+  "template": "record_damage",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Recorded 2 damaged units for Sunrise Toilet Cleaner 1kg (SKU: HSH-0244). New stock is 37.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 4,
+  "tool_errors": 0,
+  "prompt_tokens": 6006,
+  "completion_tokens": 110,
+  "requests": 3,
+  "seconds": 12.44,
+  "episode": {
+    "prompt": "2 units of Sunrise Toilet Cleaner 1kg were found damaged in the storeroom. Record this in the inventory.",
+    "answer": "Recorded 2 damaged units for Sunrise Toilet Cleaner 1kg (SKU: HSH-0244). New stock is 37.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.44,
+    "usage": {
+      "prompt_tokens": 6006,
+      "completion_tokens": 110,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Sunrise Toilet Cleaner 1kg"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0244\", \"name\": \"Sunrise Toilet Cleaner 1kg\", \"category\": \"Household\", \"unit_price_paise\": 25100, \"stock\": 39}], \"truncated\": false}"
+          },
+          {
+            "name": "list_adjustment_reasons",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"reasons\": [\"damage\", \"expired\", \"theft\", \"count_correction\", \"customer_return\"]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "adjust_stock",
+            "arguments": {
+              "reason": "damage",
+              "delta": -2,
+              "sku": "HSH-0244"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"HSH-0244\", \"stock\": 37}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Recorded 2 damaged units for Sunrise Toilet Cleaner 1kg (SKU: HSH-0244). New stock is 37."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "task_id": "inv-stock_lookup-3",
+  "template": "stock_lookup",
+  "tier": "easy",
+  "run": 0,
+  "condition": "learned",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "134",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 2,
+  "tool_calls": 2,
+  "tool_errors": 0,
+  "prompt_tokens": 4194,
+  "completion_tokens": 38,
+  "requests": 2,
+  "seconds": 8.8,
+  "episode": {
+    "prompt": "How many units of BEV-0301 are in stock right now?",
+    "answer": "134",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 8.8,
+    "usage": {
+      "prompt_tokens": 4194,
+      "completion_tokens": 38,
+      "requests": 2
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "BEV-0301"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"BEV-0301\", \"name\": \"Tarang Green Tea 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 59950, \"stock\": 134, \"reorder_level\": 13, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "134"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

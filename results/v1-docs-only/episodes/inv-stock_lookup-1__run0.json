@@ -1,0 +1,62 @@
+{
+  "task_id": "inv-stock_lookup-1",
+  "template": "stock_lookup",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "16",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 2,
+  "tool_calls": 2,
+  "tool_errors": 0,
+  "prompt_tokens": 3545,
+  "completion_tokens": 37,
+  "requests": 2,
+  "seconds": 12.02,
+  "episode": {
+    "prompt": "How many units of STP-0188 are in stock right now?",
+    "answer": "16",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.02,
+    "usage": {
+      "prompt_tokens": 3545,
+      "completion_tokens": 37,
+      "requests": 2
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "STP-0188"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"STP-0188\", \"name\": \"Nimbus Toor Dal 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 19550, \"stock\": 16, \"reorder_level\": 18, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "16"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

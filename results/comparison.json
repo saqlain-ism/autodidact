@@ -1,0 +1,352 @@
+{
+  "overall": {
+    "attempts": 72,
+    "passed_before": 56,
+    "passed_after": 61,
+    "fixed": [
+      [
+        "inv-fulfil_or_backorder-2",
+        0
+      ],
+      [
+        "inv-fulfil_or_backorder-4",
+        0
+      ],
+      [
+        "inv-fulfil_or_backorder-4",
+        1
+      ],
+      [
+        "inv-restock_category-1",
+        1
+      ],
+      [
+        "inv-restock_category-2",
+        0
+      ],
+      [
+        "inv-restock_category-4",
+        1
+      ],
+      [
+        "inv-restock_one-1",
+        0
+      ]
+    ],
+    "broken": [
+      [
+        "inv-cancel_latest-3",
+        0
+      ],
+      [
+        "inv-stock_value-1",
+        0
+      ]
+    ],
+    "p_value": 0.1796875,
+    "tokens_before": 21039.041666666668,
+    "tokens_after": 25539.180555555555,
+    "tokens_both_passed_before": 14894.24074074074,
+    "tokens_both_passed_after": 18554.574074074073,
+    "requests_before": 6.125,
+    "requests_after": 6.722222222222222
+  },
+  "templates": {
+    "brand_max": {
+      "attempts": 4,
+      "passed_before": 3,
+      "passed_after": 3,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 19122.0,
+      "tokens_after": 20204.0,
+      "tokens_both_passed_before": 22088.666666666668,
+      "tokens_both_passed_after": 24390.0,
+      "requests_before": 5.25,
+      "requests_after": 5.5
+    },
+    "cancel_latest": {
+      "attempts": 4,
+      "passed_before": 2,
+      "passed_after": 1,
+      "fixed": [],
+      "broken": [
+        [
+          "inv-cancel_latest-3",
+          0
+        ]
+      ],
+      "p_value": 1.0,
+      "tokens_before": 11719.25,
+      "tokens_after": 9997.25,
+      "tokens_both_passed_before": 16319.0,
+      "tokens_both_passed_after": 16808.0,
+      "requests_before": 4.0,
+      "requests_after": 3.5
+    },
+    "count_active": {
+      "attempts": 4,
+      "passed_before": 3,
+      "passed_after": 3,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 15721.5,
+      "tokens_after": 17521.75,
+      "tokens_both_passed_before": 14585.666666666666,
+      "tokens_both_passed_after": 14075.333333333334,
+      "requests_before": 6.25,
+      "requests_after": 6.25
+    },
+    "fulfil_or_backorder": {
+      "attempts": 8,
+      "passed_before": 5,
+      "passed_after": 8,
+      "fixed": [
+        [
+          "inv-fulfil_or_backorder-2",
+          0
+        ],
+        [
+          "inv-fulfil_or_backorder-4",
+          0
+        ],
+        [
+          "inv-fulfil_or_backorder-4",
+          1
+        ]
+      ],
+      "broken": [],
+      "p_value": 0.25,
+      "tokens_before": 12233.25,
+      "tokens_after": 12826.0,
+      "tokens_both_passed_before": 9305.2,
+      "tokens_both_passed_after": 10050.0,
+      "requests_before": 5.125,
+      "requests_after": 4.875
+    },
+    "new_product": {
+      "attempts": 4,
+      "passed_before": 4,
+      "passed_after": 4,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 19840.0,
+      "tokens_after": 32609.75,
+      "tokens_both_passed_before": 19840.0,
+      "tokens_both_passed_after": 32609.75,
+      "requests_before": 6.25,
+      "requests_after": 8.25
+    },
+    "place_order": {
+      "attempts": 4,
+      "passed_before": 4,
+      "passed_after": 4,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 6281.5,
+      "tokens_after": 7035.25,
+      "tokens_both_passed_before": 6281.5,
+      "tokens_both_passed_after": 7035.25,
+      "requests_before": 3.0,
+      "requests_after": 3.0
+    },
+    "price_hike": {
+      "attempts": 4,
+      "passed_before": 1,
+      "passed_after": 1,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 87301.5,
+      "tokens_after": 85014.0,
+      "tokens_both_passed_before": 52418.0,
+      "tokens_both_passed_after": 67492.0,
+      "requests_before": 16.25,
+      "requests_after": 16.0
+    },
+    "price_lookup": {
+      "attempts": 4,
+      "passed_before": 4,
+      "passed_after": 4,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 5823.75,
+      "tokens_after": 6453.5,
+      "tokens_both_passed_before": 5823.75,
+      "tokens_both_passed_after": 6453.5,
+      "requests_before": 3.0,
+      "requests_after": 3.0
+    },
+    "record_damage": {
+      "attempts": 4,
+      "passed_before": 4,
+      "passed_after": 4,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 6691.5,
+      "tokens_after": 6825.75,
+      "tokens_both_passed_before": 6691.5,
+      "tokens_both_passed_after": 6825.75,
+      "requests_before": 3.25,
+      "requests_after": 3.0
+    },
+    "restock_category": {
+      "attempts": 8,
+      "passed_before": 3,
+      "passed_after": 6,
+      "fixed": [
+        [
+          "inv-restock_category-1",
+          1
+        ],
+        [
+          "inv-restock_category-2",
+          0
+        ],
+        [
+          "inv-restock_category-4",
+          1
+        ]
+      ],
+      "broken": [],
+      "p_value": 0.25,
+      "tokens_before": 52628.5,
+      "tokens_after": 58034.125,
+      "tokens_both_passed_before": 53505.0,
+      "tokens_both_passed_after": 52884.333333333336,
+      "requests_before": 12.125,
+      "requests_after": 11.375
+    },
+    "restock_one": {
+      "attempts": 8,
+      "passed_before": 7,
+      "passed_after": 8,
+      "fixed": [
+        [
+          "inv-restock_one-1",
+          0
+        ]
+      ],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 23215.375,
+      "tokens_after": 22846.125,
+      "tokens_both_passed_before": 23793.714285714286,
+      "tokens_both_passed_after": 23187.428571428572,
+      "requests_before": 7.75,
+      "requests_after": 8.375
+    },
+    "set_price": {
+      "attempts": 4,
+      "passed_before": 4,
+      "passed_after": 4,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 5574.25,
+      "tokens_after": 4272.5,
+      "tokens_both_passed_before": 5574.25,
+      "tokens_both_passed_after": 4272.5,
+      "requests_before": 2.75,
+      "requests_after": 2.0
+    },
+    "stock_lookup": {
+      "attempts": 4,
+      "passed_before": 4,
+      "passed_after": 4,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 3813.75,
+      "tokens_after": 4240.25,
+      "tokens_both_passed_before": 3813.75,
+      "tokens_both_passed_after": 4240.25,
+      "requests_before": 2.0,
+      "requests_after": 2.0
+    },
+    "stock_value": {
+      "attempts": 4,
+      "passed_before": 4,
+      "passed_after": 3,
+      "fixed": [],
+      "broken": [
+        [
+          "inv-stock_value-1",
+          0
+        ]
+      ],
+      "p_value": 1.0,
+      "tokens_before": 14418.75,
+      "tokens_after": 71162.5,
+      "tokens_both_passed_before": 11623.333333333334,
+      "tokens_both_passed_after": 52487.666666666664,
+      "requests_before": 5.25,
+      "requests_after": 16.25
+    },
+    "supplier_city": {
+      "attempts": 4,
+      "passed_before": 4,
+      "passed_after": 4,
+      "fixed": [],
+      "broken": [],
+      "p_value": 1.0,
+      "tokens_before": 6240.75,
+      "tokens_after": 6956.25,
+      "tokens_both_passed_before": 6240.75,
+      "tokens_both_passed_after": 6956.25,
+      "requests_before": 3.0,
+      "requests_after": 3.0
+    }
+  },
+  "groups": {
+    "case-pack tasks": {
+      "attempts": 24,
+      "passed_before": 15,
+      "passed_after": 22,
+      "fixed": [
+        [
+          "inv-fulfil_or_backorder-2",
+          0
+        ],
+        [
+          "inv-fulfil_or_backorder-4",
+          0
+        ],
+        [
+          "inv-fulfil_or_backorder-4",
+          1
+        ],
+        [
+          "inv-restock_category-1",
+          1
+        ],
+        [
+          "inv-restock_category-2",
+          0
+        ],
+        [
+          "inv-restock_category-4",
+          1
+        ],
+        [
+          "inv-restock_one-1",
+          0
+        ]
+      ],
+      "broken": [],
+      "p_value": 0.015625,
+      "tokens_before": 29359.041666666668,
+      "tokens_after": 31235.416666666668,
+      "tokens_both_passed_before": 24906.466666666667,
+      "tokens_both_passed_after": 24747.666666666668,
+      "requests_before": 8.333333333333334,
+      "requests_after": 8.208333333333334
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "task_id": "inv-count_active-1",
+  "template": "count_active",
+  "tier": "medium",
+  "run": 0,
+  "condition": "learned",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "12",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 5,
+  "tool_calls": 5,
+  "tool_errors": 0,
+  "prompt_tokens": 12273,
+  "completion_tokens": 105,
+  "requests": 5,
+  "seconds": 34.73,
+  "episode": {
+    "prompt": "How many active (not archived) products are there in the Household category?",
+    "answer": "12",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 34.73,
+    "usage": {
+      "prompt_tokens": 12273,
+      "completion_tokens": 105,
+      "requests": 5
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "Household",
+              "include_archived": false
+            },
+            "ok": true,
+            "result": "{\"items\": [], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_categories",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"code\": \"BEV\", \"name\": \"Beverages\"}, {\"code\": \"DRY\", \"name\": \"Dairy\"}, {\"code\": \"HSH\", \"name\": \"Household\"}, {\"code\": \"PRC\", \"name\": \"Personal Care\"}, {\"code\": \"SNK\", \"name\": \"Snacks\"}, {\"code\": \"STP\", \"name\": \"Staples\"}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "include_archived": false,
+              "category": "HSH"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0244\", \"name\": \"Sunrise Toilet Cleaner 1kg\", \"category\": \"Household\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 25100, \"stock\": 39}, {\"sku\": \"HSH-0246\", \"name\": \"Kaveri Scrub Pad 1kg\", \"category\": \"Household\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 53000, \"stock\": 59}, {\"sku\": \"HSH-0248\", \"name\": \"Mitti Camphor Tablets 500ml\", \"category\": \"Household\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 23800, \"stock\": 126}, {\"sku\": \"HSH-0254\", \"name\": \"Sunrise Floor Cleaner 200g\", \"category\": \"Household\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 4400, \"stock\": 34}, {\"sku\": \"HSH-0263\", \"name\": \"Nimbus Naphthalene Balls 200g\", \"category\": \"Household\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 27250, \"stock\": 139}, {\"sku\": \"HSH-0269\", \"name\": \"Gully Agarbatti 1kg\", \"category\": \"Household\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 23650, \"stock\": 69}, {\"sku\": \"HSH-0278\", \"name\": \"Kaveri Mosquito Coil 1kg\", \"category\": \"Household\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 15250, \"stock\": 76}, {\"sku\": \"HSH-0279\", \"name\": \"Sunrise Garbage Bags 250g\", \"category\": \"Household\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 5400, \"stock\": 99}, {\"sku\": \"HSH-0282\", \"name\": \"Himgiri Dishwash Bar 250g\", \"category\": \"Household\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 56000, \"stock\": 145}, {\"sku\": \"HSH-0284\", \"name\": \"Nimbus Glass Cleaner 200g\", \"category\": \"Household\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 32450, \"stock\": 26}], \"next_cursor\": \"bzoxMA==\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "HSH",
+              "cursor": "bzoxMA==",
+              "include_archived": false
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0293\", \"name\": \"Sunrise Matchbox Pack 100ml\", \"category\": \"Household\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 58150, \"stock\": 1}, {\"sku\": \"HSH-0295\", \"name\": \"Sunrise Detergent Powder 1L\", \"category\": \"Household\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 32400, \"stock\": 24}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "12"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

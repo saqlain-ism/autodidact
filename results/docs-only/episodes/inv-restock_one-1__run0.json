@@ -1,0 +1,146 @@
+{
+  "task_id": "inv-restock_one-1",
+  "template": "restock_one",
+  "tier": "hard",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": false,
+  "reason": "ordered [('SUP-08', 'PRC-0347', 20)], expected [('SUP-08', 'PRC-0347', 3)]",
+  "answer": "Purchased and received 20 units of Mitti Herbal Shampoo 250g from Coromandel Agencies via PO-5005, bringing stock up to 43 units.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 7,
+  "tool_calls": 8,
+  "tool_errors": 0,
+  "prompt_tokens": 18931,
+  "completion_tokens": 236,
+  "requests": 7,
+  "seconds": 29.5,
+  "episode": {
+    "prompt": "We need more Mitti Herbal Shampoo 250g. Buy enough to bring stock up to at least 43 units from the supplier with the lowest unit cost that is still accepting orders, ordering as little as that supplier allows, and record the delivery as received.",
+    "answer": "Purchased and received 20 units of Mitti Herbal Shampoo 250g from Coromandel Agencies via PO-5005, bringing stock up to 43 units.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 29.5,
+    "usage": {
+      "prompt_tokens": 18931,
+      "completion_tokens": 236,
+      "requests": 7
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Mitti Herbal Shampoo 250g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"PRC-0347\", \"name\": \"Mitti Herbal Shampoo 250g\", \"category\": \"Personal Care\", \"unit_price_paise\": 52550, \"stock\": 23}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "PRC-0347"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"PRC-0347\", \"quotes\": [{\"supplier_id\": \"SUP-02\", \"supplier_name\": \"Satpura Supplies\", \"unit_cost_paise\": 33654, \"pack_size\": 1, \"moq\": 1}, {\"supplier_id\": \"SUP-08\", \"supplier_name\": \"Coromandel Agencies\", \"unit_cost_paise\": 35962, \"pack_size\": 10, \"moq\": 3}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-02"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-02\", \"name\": \"Satpura Supplies\", \"city\": \"Indore\", \"lead_time_days\": 4, \"status\": \"inactive\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-08"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-08\", \"name\": \"Coromandel Agencies\", \"city\": \"Hyderabad\", \"lead_time_days\": 2, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "lines": [
+                {
+                  "qty": 20,
+                  "sku": "PRC-0347"
+                }
+              ],
+              "supplier_id": "SUP-08"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-08\", \"status\": \"draft\", \"lines\": [{\"sku\": \"PRC-0347\", \"qty\": 20, \"pack_size\": 10, \"unit_cost_paise\": 35962}], \"total_cost_paise\": 7192400}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-08\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"PRC-0347\", \"qty\": 20, \"pack_size\": 10, \"unit_cost_paise\": 35962}], \"total_cost_paise\": 7192400}"
+          },
+          {
+            "name": "receive_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-08\", \"status\": \"received\", \"lines\": [{\"sku\": \"PRC-0347\", \"qty\": 20, \"pack_size\": 10, \"unit_cost_paise\": 35962}], \"total_cost_paise\": 7192400}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Purchased and received 20 units of Mitti Herbal Shampoo 250g from Coromandel Agencies via PO-5005, bringing stock up to 43 units."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

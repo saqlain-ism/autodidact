@@ -1,0 +1,84 @@
+{
+  "task_id": "inv-record_damage-3",
+  "template": "record_damage",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Recorded 4 damaged units for Kaveri Toor Dal 500g (SKU: STP-0262). New stock level: 69.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 4,
+  "tool_errors": 0,
+  "prompt_tokens": 6094,
+  "completion_tokens": 119,
+  "requests": 3,
+  "seconds": 12.95,
+  "episode": {
+    "prompt": "4 units of Kaveri Toor Dal 500g were found damaged in the storeroom. Record this in the inventory.",
+    "answer": "Recorded 4 damaged units for Kaveri Toor Dal 500g (SKU: STP-0262). New stock level: 69.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 12.95,
+    "usage": {
+      "prompt_tokens": 6094,
+      "completion_tokens": 119,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Kaveri Toor Dal 500g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"STP-0262\", \"name\": \"Kaveri Toor Dal 500g\", \"category\": \"Staples\", \"unit_price_paise\": 9450, \"stock\": 73}], \"truncated\": false}"
+          },
+          {
+            "name": "list_adjustment_reasons",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"reasons\": [\"damage\", \"expired\", \"theft\", \"count_correction\", \"customer_return\"]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "adjust_stock",
+            "arguments": {
+              "reason": "damage",
+              "sku": "STP-0262",
+              "delta": -4
+            },
+            "ok": true,
+            "result": "{\"sku\": \"STP-0262\", \"stock\": 69}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Recorded 4 damaged units for Kaveri Toor Dal 500g (SKU: STP-0262). New stock level: 69."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

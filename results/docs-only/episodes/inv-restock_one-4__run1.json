@@ -1,0 +1,188 @@
+{
+  "task_id": "inv-restock_one-4",
+  "template": "restock_one",
+  "tier": "hard",
+  "run": 1,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Ordered 1 pack (24 units) of Desi Farm Hand Wash Pack of 6 from Vindhya Merchants (SUP-05) via PO-5006, bringing stock from 122 to 146 units, and recorded delivery as received.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 9,
+  "tool_calls": 11,
+  "tool_errors": 0,
+  "prompt_tokens": 27787,
+  "completion_tokens": 345,
+  "requests": 9,
+  "seconds": 38.47,
+  "episode": {
+    "prompt": "We need more Desi Farm Hand Wash Pack of 6. Buy enough to bring stock up to at least 146 units from the supplier with the lowest unit cost that is still accepting orders, ordering as little as that supplier allows, and record the delivery as received.",
+    "answer": "Ordered 1 pack (24 units) of Desi Farm Hand Wash Pack of 6 from Vindhya Merchants (SUP-05) via PO-5006, bringing stock from 122 to 146 units, and recorded delivery as received.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 38.47,
+    "usage": {
+      "prompt_tokens": 27787,
+      "completion_tokens": 345,
+      "requests": 9
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Desi Farm Hand Wash Pack of 6"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"PRC-0291\", \"name\": \"Desi Farm Hand Wash Pack of 6\", \"category\": \"Personal Care\", \"unit_price_paise\": 28350, \"stock\": 122}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "PRC-0291"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"PRC-0291\", \"quotes\": [{\"supplier_id\": \"SUP-03\", \"supplier_name\": \"Sahyadri Distributors\", \"unit_cost_paise\": 24014, \"pack_size\": 6, \"moq\": 1}, {\"supplier_id\": \"SUP-05\", \"supplier_name\": \"Vindhya Merchants\", \"unit_cost_paise\": 20547, \"pack_size\": 24, \"moq\": 1}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-03"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-03\", \"name\": \"Sahyadri Distributors\", \"city\": \"Kochi\", \"lead_time_days\": 5, \"status\": \"active\"}"
+          },
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-05"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-05\", \"name\": \"Vindhya Merchants\", \"city\": \"Bhopal\", \"lead_time_days\": 2, \"status\": \"active\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "supplier_id": "SUP-05",
+              "lines": [
+                {
+                  "sku": "PRC-0291",
+                  "qty": 24
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-05\", \"status\": \"draft\", \"lines\": [{\"sku\": \"PRC-0291\", \"qty\": 24, \"pack_size\": 24, \"unit_cost_paise\": 20547}], \"total_cost_paise\": 11835072}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-05\", \"status\": \"draft\", \"lines\": [{\"sku\": \"PRC-0291\", \"qty\": 24, \"pack_size\": 24, \"unit_cost_paise\": 20547}], \"total_cost_paise\": 11835072}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "cancel_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-05\", \"status\": \"cancelled\", \"lines\": [{\"sku\": \"PRC-0291\", \"qty\": 24, \"pack_size\": 24, \"unit_cost_paise\": 20547}], \"total_cost_paise\": 11835072}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "supplier_id": "SUP-05",
+              "lines": [
+                {
+                  "sku": "PRC-0291",
+                  "qty": 1
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5006\", \"supplier_id\": \"SUP-05\", \"status\": \"draft\", \"lines\": [{\"sku\": \"PRC-0291\", \"qty\": 1, \"pack_size\": 24, \"unit_cost_paise\": 20547}], \"total_cost_paise\": 493128}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5006"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5006\", \"supplier_id\": \"SUP-05\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"PRC-0291\", \"qty\": 1, \"pack_size\": 24, \"unit_cost_paise\": 20547}], \"total_cost_paise\": 493128}"
+          },
+          {
+            "name": "receive_purchase_order",
+            "arguments": {
+              "po_id": "PO-5006"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5006\", \"supplier_id\": \"SUP-05\", \"status\": \"received\", \"lines\": [{\"sku\": \"PRC-0291\", \"qty\": 1, \"pack_size\": 24, \"unit_cost_paise\": 20547}], \"total_cost_paise\": 493128}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Ordered 1 pack (24 units) of Desi Farm Hand Wash Pack of 6 from Vindhya Merchants (SUP-05) via PO-5006, bringing stock from 122 to 146 units, and recorded delivery as received."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

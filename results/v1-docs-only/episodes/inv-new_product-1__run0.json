@@ -1,0 +1,132 @@
+{
+  "task_id": "inv-new_product-1",
+  "template": "new_product",
+  "tier": "medium",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Registered supplier SUP-09 (Godavari Foods) and created product HSH-0275 (Pragati Steel Wool Pack of 6).",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 6,
+  "tool_calls": 7,
+  "tool_errors": 1,
+  "prompt_tokens": 14097,
+  "completion_tokens": 217,
+  "requests": 6,
+  "seconds": 35.62,
+  "episode": {
+    "prompt": "We're adding a new product: Pragati Steel Wool Pack of 6, in Household, selling at ₹30.00. It comes from a new supplier, Godavari Foods in Rajahmundry, with a lead time of 4 days. Register the supplier and create the product using the next unused SKU number in that category.",
+    "answer": "Registered supplier SUP-09 (Godavari Foods) and created product HSH-0275 (Pragati Steel Wool Pack of 6).",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 35.62,
+    "usage": {
+      "prompt_tokens": 14097,
+      "completion_tokens": 217,
+      "requests": 6
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_categories",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"code\": \"BEV\", \"name\": \"Beverages\"}, {\"code\": \"DRY\", \"name\": \"Dairy\"}, {\"code\": \"HSH\", \"name\": \"Household\"}, {\"code\": \"PRC\", \"name\": \"Personal Care\"}, {\"code\": \"SNK\", \"name\": \"Snacks\"}, {\"code\": \"STP\", \"name\": \"Staples\"}]}"
+          },
+          {
+            "name": "create_supplier",
+            "arguments": {
+              "lead_time_days": 4,
+              "city": "Rajahmundry",
+              "name": "Godavari Foods"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-09\", \"name\": \"Godavari Foods\", \"city\": \"Rajahmundry\", \"lead_time_days\": 4}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "page_size": 50,
+              "category": "Household"
+            },
+            "ok": false,
+            "result": "ERROR: E_VALIDATION: invalid page_size"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "Household"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0223\", \"name\": \"Himgiri Floor Cleaner 200ml\", \"category\": \"Household\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 20100, \"stock\": 150}, {\"sku\": \"HSH-0224\", \"name\": \"Tarang Garbage Bags 500g\", \"category\": \"Household\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 42200, \"stock\": 81}, {\"sku\": \"HSH-0231\", \"name\": \"Nimbus Dishwash Bar 100g\", \"category\": \"Household\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 46200, \"stock\": 12}, {\"sku\": \"HSH-0240\", \"name\": \"Tarang Toilet Cleaner 100ml\", \"category\": \"Household\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 28050, \"stock\": 14}, {\"sku\": \"HSH-0248\", \"name\": \"Nimbus Detergent Powder 100ml\", \"category\": \"Household\", \"supplier_id\": \"SUP-06\", \"unit_price_paise\": 46550, \"stock\": 85}, {\"sku\": \"HSH-0249\", \"name\": \"Desi Farm Camphor Tablets 500g\", \"category\": \"Household\", \"supplier_id\": \"SUP-02\", \"unit_price_paise\": 10550, \"stock\": 59}, {\"sku\": \"HSH-0251\", \"name\": \"Nimbus Mosquito Coil 1kg\", \"category\": \"Household\", \"supplier_id\": \"SUP-02\", \"unit_price_paise\": 22950, \"stock\": 4}, {\"sku\": \"HSH-0257\", \"name\": \"Gully Naphthalene Balls 1kg\", \"category\": \"Household\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 23650, \"stock\": 69}, {\"sku\": \"HSH-0266\", \"name\": \"Kaveri Scrub Pad 1kg\", \"category\": \"Household\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 15250, \"stock\": 76}, {\"sku\": \"HSH-0267\", \"name\": \"Sunrise Glass Cleaner 250g\", \"category\": \"Household\", \"supplier_id\": \"SUP-06\", \"unit_price_paise\": 5400, \"stock\": 99}], \"next_cursor\": \"bzoxMA==\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "cursor": "bzoxMA==",
+              "category": "Household"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0274\", \"name\": \"Himgiri Matchbox Pack 250g\", \"category\": \"Household\", \"supplier_id\": \"SUP-06\", \"unit_price_paise\": 8200, \"stock\": 97}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_product",
+            "arguments": {
+              "category": "Household",
+              "supplier_id": "SUP-09",
+              "unit_price_paise": 3000,
+              "name": "Pragati Steel Wool Pack of 6",
+              "sku": "HSH-0275"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"HSH-0275\", \"name\": \"Pragati Steel Wool Pack of 6\", \"category\": \"Household\", \"supplier_id\": \"SUP-09\", \"unit_price_paise\": 3000, \"stock\": 0, \"reorder_level\": 10, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Registered supplier SUP-09 (Godavari Foods) and created product HSH-0275 (Pragati Steel Wool Pack of 6)."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

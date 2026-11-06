@@ -1,0 +1,118 @@
+{
+  "task_id": "inv-restock_one-1",
+  "template": "restock_one",
+  "tier": "hard",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Ordered 13 units of Kaveri Rava 200g from Vindhya Merchants (SUP-04) via PO-5005, submitted and received the delivery.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 5,
+  "tool_calls": 6,
+  "tool_errors": 0,
+  "prompt_tokens": 11318,
+  "completion_tokens": 194,
+  "requests": 5,
+  "seconds": 30.09,
+  "episode": {
+    "prompt": "Kaveri Rava 200g is running low. Buy enough from whichever supplier offers the lowest unit cost to bring stock up to at least 14 units, ordering as few units as that supplier allows, and record the delivery as received.",
+    "answer": "Ordered 13 units of Kaveri Rava 200g from Vindhya Merchants (SUP-04) via PO-5005, submitted and received the delivery.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 30.09,
+    "usage": {
+      "prompt_tokens": 11318,
+      "completion_tokens": 194,
+      "requests": 5
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Kaveri Rava 200g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"STP-0197\", \"name\": \"Kaveri Rava 200g\", \"category\": \"Staples\", \"unit_price_paise\": 15800, \"stock\": 1}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "STP-0197"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"STP-0197\", \"quotes\": [{\"supplier_id\": \"SUP-04\", \"supplier_name\": \"Vindhya Merchants\", \"unit_cost_paise\": 8755, \"moq\": 12}, {\"supplier_id\": \"SUP-08\", \"supplier_name\": \"Narmada Supply Co\", \"unit_cost_paise\": 9666, \"moq\": 10}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "lines": [
+                {
+                  "qty": 13,
+                  "sku": "STP-0197"
+                }
+              ],
+              "supplier_id": "SUP-04"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-04\", \"status\": \"draft\", \"lines\": [{\"sku\": \"STP-0197\", \"qty\": 13, \"unit_cost_paise\": 8755}], \"total_cost_paise\": 113815}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-04\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"STP-0197\", \"qty\": 13, \"unit_cost_paise\": 8755}], \"total_cost_paise\": 113815}"
+          },
+          {
+            "name": "receive_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-04\", \"status\": \"received\", \"lines\": [{\"sku\": \"STP-0197\", \"qty\": 13, \"unit_cost_paise\": 8755}], \"total_cost_paise\": 113815}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Ordered 13 units of Kaveri Rava 200g from Vindhya Merchants (SUP-04) via PO-5005, submitted and received the delivery."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

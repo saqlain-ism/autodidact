@@ -1,0 +1,341 @@
+{
+  "task_id": "inv-restock_category-1",
+  "template": "restock_category",
+  "tier": "hard",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Restocked Dairy category products DRY-0254 (3 packs from Ganga Bulk Mart) and DRY-0303 (3 packs from Coromandel Agencies), submitted and received purchase orders.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 11,
+  "tool_calls": 29,
+  "tool_errors": 0,
+  "prompt_tokens": 50485,
+  "completion_tokens": 698,
+  "requests": 11,
+  "seconds": 47.55,
+  "episode": {
+    "prompt": "Restock the Dairy category: every active product in it that is below its reorder level should be brought up to at least twice its reorder level. Buy each one from its cheapest supplier that is still accepting orders, order as little as allowed, and receive the deliveries.",
+    "answer": "Restocked Dairy category products DRY-0254 (3 packs from Ganga Bulk Mart) and DRY-0303 (3 packs from Coromandel Agencies), submitted and received purchase orders.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 47.55,
+    "usage": {
+      "prompt_tokens": 50485,
+      "completion_tokens": 698,
+      "requests": 11
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_categories",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"code\": \"BEV\", \"name\": \"Beverages\"}, {\"code\": \"DRY\", \"name\": \"Dairy\"}, {\"code\": \"HSH\", \"name\": \"Household\"}, {\"code\": \"PRC\", \"name\": \"Personal Care\"}, {\"code\": \"SNK\", \"name\": \"Snacks\"}, {\"code\": \"STP\", \"name\": \"Staples\"}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "DRY"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"DRY-0247\", \"name\": \"Tarang Toned Milk 100g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 43200, \"stock\": 28}, {\"sku\": \"DRY-0254\", \"name\": \"Kaveri Paneer 100g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 7900, \"stock\": 4}, {\"sku\": \"DRY-0255\", \"name\": \"Nimbus Khoa 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 9500, \"stock\": 111}, {\"sku\": \"DRY-0265\", \"name\": \"Kaveri Cheese Slices 1L\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 59300, \"stock\": 139}, {\"sku\": \"DRY-0271\", \"name\": \"Nimbus Ghee 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 11700, \"stock\": 107}, {\"sku\": \"DRY-0280\", \"name\": \"Mitti Lassi 500g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 2900, \"stock\": 69}, {\"sku\": \"DRY-0287\", \"name\": \"Sunrise Shrikhand 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 3100, \"stock\": 65}, {\"sku\": \"DRY-0294\", \"name\": \"Desi Farm Curd 100ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 13750, \"stock\": 119}, {\"sku\": \"DRY-0295\", \"name\": \"Gully Butter 1L\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 29550, \"stock\": 119}, {\"sku\": \"DRY-0296\", \"name\": \"Gully Cream 500ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 12750, \"stock\": 107}], \"next_cursor\": \"bzoxMA==\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "DRY",
+              "cursor": "bzoxMA=="
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"DRY-0303\", \"name\": \"Mitti Milk Powder 500ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 28600, \"stock\": 7}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0247"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0247\", \"name\": \"Tarang Toned Milk 100g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 43200, \"stock\": 28, \"reorder_level\": 14, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0254"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0254\", \"name\": \"Kaveri Paneer 100g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 7900, \"stock\": 4, \"reorder_level\": 13, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0255"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0255\", \"name\": \"Nimbus Khoa 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 9500, \"stock\": 111, \"reorder_level\": 9, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0265"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0265\", \"name\": \"Kaveri Cheese Slices 1L\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 59300, \"stock\": 139, \"reorder_level\": 16, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0271"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0271\", \"name\": \"Nimbus Ghee 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 11700, \"stock\": 107, \"reorder_level\": 26, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0280"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0280\", \"name\": \"Mitti Lassi 500g\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 2900, \"stock\": 69, \"reorder_level\": 21, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0287"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0287\", \"name\": \"Sunrise Shrikhand 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 3100, \"stock\": 65, \"reorder_level\": 29, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0294"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0294\", \"name\": \"Desi Farm Curd 100ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 13750, \"stock\": 119, \"reorder_level\": 16, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0295"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0295\", \"name\": \"Gully Butter 1L\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 29550, \"stock\": 119, \"reorder_level\": 26, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0296"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0296\", \"name\": \"Gully Cream 500ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 12750, \"stock\": 107, \"reorder_level\": 14, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0303"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0303\", \"name\": \"Mitti Milk Powder 500ml\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 28600, \"stock\": 7, \"reorder_level\": 16, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "DRY-0254"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0254\", \"quotes\": [{\"supplier_id\": \"SUP-06\", \"supplier_name\": \"Kaveri Traders\", \"unit_cost_paise\": 6457, \"pack_size\": 10, \"moq\": 1}, {\"supplier_id\": \"SUP-07\", \"supplier_name\": \"Ganga Bulk Mart\", \"unit_cost_paise\": 4798, \"pack_size\": 10, \"moq\": 1}, {\"supplier_id\": \"SUP-08\", \"supplier_name\": \"Coromandel Agencies\", \"unit_cost_paise\": 6679, \"pack_size\": 24, \"moq\": 1}]}"
+          },
+          {
+            "name": "get_supplier_quotes",
+            "arguments": {
+              "sku": "DRY-0303"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0303\", \"quotes\": [{\"supplier_id\": \"SUP-01\", \"supplier_name\": \"Aravalli Stockists\", \"unit_cost_paise\": 22779, \"pack_size\": 10, \"moq\": 1}, {\"supplier_id\": \"SUP-02\", \"supplier_name\": \"Satpura Supplies\", \"unit_cost_paise\": 22597, \"pack_size\": 12, \"moq\": 1}, {\"supplier_id\": \"SUP-08\", \"supplier_name\": \"Coromandel Agencies\", \"unit_cost_paise\": 17787, \"pack_size\": 10, \"moq\": 3}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-06"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-06\", \"name\": \"Kaveri Traders\", \"city\": \"Indore\", \"lead_time_days\": 3, \"status\": \"inactive\"}"
+          },
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-07"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-07\", \"name\": \"Ganga Bulk Mart\", \"city\": \"Chennai\", \"lead_time_days\": 6, \"status\": \"active\"}"
+          },
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-08"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-08\", \"name\": \"Coromandel Agencies\", \"city\": \"Hyderabad\", \"lead_time_days\": 2, \"status\": \"active\"}"
+          },
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-01"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-01\", \"name\": \"Aravalli Stockists\", \"city\": \"Surat\", \"lead_time_days\": 9, \"status\": \"active\"}"
+          },
+          {
+            "name": "get_supplier",
+            "arguments": {
+              "supplier_id": "SUP-02"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SUP-02\", \"name\": \"Satpura Supplies\", \"city\": \"Indore\", \"lead_time_days\": 4, \"status\": \"inactive\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_purchase_orders",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"id\": \"PO-5001\", \"supplier_id\": \"SUP-01\", \"status\": \"received\", \"lines\": [{\"sku\": \"SNK-0398\", \"qty\": 2, \"pack_size\": 6, \"unit_cost_paise\": 13771}], \"total_cost_paise\": 165252}, {\"id\": \"PO-5002\", \"supplier_id\": \"SUP-08\", \"status\": \"received\", \"lines\": [{\"sku\": \"STP-0255\", \"qty\": 2, \"pack_size\": 1, \"unit_cost_paise\": 43040}], \"total_cost_paise\": 86080}, {\"id\": \"PO-5003\", \"supplier_id\": \"SUP-07\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"DRY-0254\", \"qty\": 2, \"pack_size\": 10, \"unit_cost_paise\": 4798}], \"total_cost_paise\": 95960}, {\"id\": \"PO-5004\", \"supplier_id\": \"SUP-05\", \"status\": \"draft\", \"lines\": [{\"sku\": \"PRC-0291\", \"qty\": 2, \"pack_size\": 24, \"unit_cost_paise\": 20547}], \"total_cost_paise\": 986256}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "supplier_id": "SUP-07",
+              "lines": [
+                {
+                  "qty": 3,
+                  "sku": "DRY-0254"
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"draft\", \"lines\": [{\"sku\": \"DRY-0254\", \"qty\": 3, \"pack_size\": 10, \"unit_cost_paise\": 4798}], \"total_cost_paise\": 143940}"
+          },
+          {
+            "name": "create_purchase_order",
+            "arguments": {
+              "supplier_id": "SUP-08",
+              "lines": [
+                {
+                  "qty": 3,
+                  "sku": "DRY-0303"
+                }
+              ]
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5006\", \"supplier_id\": \"SUP-08\", \"status\": \"draft\", \"lines\": [{\"sku\": \"DRY-0303\", \"qty\": 3, \"pack_size\": 10, \"unit_cost_paise\": 17787}], \"total_cost_paise\": 533610}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"DRY-0254\", \"qty\": 3, \"pack_size\": 10, \"unit_cost_paise\": 4798}], \"total_cost_paise\": 143940}"
+          },
+          {
+            "name": "submit_purchase_order",
+            "arguments": {
+              "po_id": "PO-5006"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5006\", \"supplier_id\": \"SUP-08\", \"status\": \"submitted\", \"lines\": [{\"sku\": \"DRY-0303\", \"qty\": 3, \"pack_size\": 10, \"unit_cost_paise\": 17787}], \"total_cost_paise\": 533610}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "receive_purchase_order",
+            "arguments": {
+              "po_id": "PO-5005"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5005\", \"supplier_id\": \"SUP-07\", \"status\": \"received\", \"lines\": [{\"sku\": \"DRY-0254\", \"qty\": 3, \"pack_size\": 10, \"unit_cost_paise\": 4798}], \"total_cost_paise\": 143940}"
+          },
+          {
+            "name": "receive_purchase_order",
+            "arguments": {
+              "po_id": "PO-5006"
+            },
+            "ok": true,
+            "result": "{\"id\": \"PO-5006\", \"supplier_id\": \"SUP-08\", \"status\": \"received\", \"lines\": [{\"sku\": \"DRY-0303\", \"qty\": 3, \"pack_size\": 10, \"unit_cost_paise\": 17787}], \"total_cost_paise\": 533610}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Restocked Dairy category products DRY-0254 (3 packs from Ganga Bulk Mart) and DRY-0303 (3 packs from Coromandel Agencies), submitted and received purchase orders."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

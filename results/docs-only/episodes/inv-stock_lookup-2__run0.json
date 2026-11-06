@@ -1,0 +1,62 @@
+{
+  "task_id": "inv-stock_lookup-2",
+  "template": "stock_lookup",
+  "tier": "easy",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "119",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 2,
+  "tool_calls": 2,
+  "tool_errors": 0,
+  "prompt_tokens": 3789,
+  "completion_tokens": 38,
+  "requests": 2,
+  "seconds": 8.52,
+  "episode": {
+    "prompt": "How many units of DRY-0295 are in stock right now?",
+    "answer": "119",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 8.52,
+    "usage": {
+      "prompt_tokens": 3789,
+      "completion_tokens": 38,
+      "requests": 2
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0295"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0295\", \"name\": \"Gully Butter 1L\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 29550, \"stock\": 119, \"reorder_level\": 26, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "119"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "task_id": "inv-count_active-2",
+  "template": "count_active",
+  "tier": "medium",
+  "run": 0,
+  "condition": "learned",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": false,
+  "reason": "answered 11, expected 10",
+  "answer": "11",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 9,
+  "tool_calls": 9,
+  "tool_errors": 0,
+  "prompt_tokens": 27682,
+  "completion_tokens": 179,
+  "requests": 9,
+  "seconds": 60.09,
+  "episode": {
+    "prompt": "How many active (not archived) products are there in the Staples category?",
+    "answer": "11",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 60.09,
+    "usage": {
+      "prompt_tokens": 27682,
+      "completion_tokens": 179,
+      "requests": 9
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "Staples"
+            },
+            "ok": true,
+            "result": "{\"items\": [], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_categories",
+            "arguments": {},
+            "ok": true,
+            "result": "{\"items\": [{\"code\": \"BEV\", \"name\": \"Beverages\"}, {\"code\": \"DRY\", \"name\": \"Dairy\"}, {\"code\": \"HSH\", \"name\": \"Household\"}, {\"code\": \"PRC\", \"name\": \"Personal Care\"}, {\"code\": \"SNK\", \"name\": \"Snacks\"}, {\"code\": \"STP\", \"name\": \"Staples\"}]}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "STP"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"STP-0223\", \"name\": \"Nimbus Poha 1kg\", \"category\": \"Staples\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 4750, \"stock\": 1}, {\"sku\": \"STP-0239\", \"name\": \"Tarang Sona Masoori Rice 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 29800, \"stock\": 4}, {\"sku\": \"STP-0240\", \"name\": \"Gully Chana Dal 1kg\", \"category\": \"Staples\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 9900, \"stock\": 26}, {\"sku\": \"STP-0241\", \"name\": \"Himgiri Rock Salt 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 44400, \"stock\": 15}, {\"sku\": \"STP-0244\", \"name\": \"Sunrise Rava 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 13700, \"stock\": 150}, {\"sku\": \"STP-0248\", \"name\": \"Tarang Atta 100ml\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 8950, \"stock\": 59}, {\"sku\": \"STP-0249\", \"name\": \"Nimbus Mustard Oil Pack of 6\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 53800, \"stock\": 17}, {\"sku\": \"STP-0255\", \"name\": \"Mitti Sugar 200g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 51900, \"stock\": 19}, {\"sku\": \"STP-0262\", \"name\": \"Kaveri Toor Dal 500g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 9450, \"stock\": 73}, {\"sku\": \"STP-0278\", \"name\": \"Sunrise Groundnut Oil 100ml\", \"category\": \"Staples\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 30300, \"stock\": 106}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "Staples",
+              "include_archived": true
+            },
+            "ok": true,
+            "result": "{\"items\": [], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "category": "STP",
+              "include_archived": true
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"STP-0223\", \"name\": \"Nimbus Poha 1kg\", \"category\": \"Staples\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 4750, \"stock\": 1}, {\"sku\": \"STP-0230\", \"name\": \"Gully Besan 250g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 57350, \"stock\": 0}, {\"sku\": \"STP-0239\", \"name\": \"Tarang Sona Masoori Rice 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 29800, \"stock\": 4}, {\"sku\": \"STP-0240\", \"name\": \"Gully Chana Dal 1kg\", \"category\": \"Staples\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 9900, \"stock\": 26}, {\"sku\": \"STP-0241\", \"name\": \"Himgiri Rock Salt 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 44400, \"stock\": 15}, {\"sku\": \"STP-0244\", \"name\": \"Sunrise Rava 100g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 13700, \"stock\": 150}, {\"sku\": \"STP-0248\", \"name\": \"Tarang Atta 100ml\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 8950, \"stock\": 59}, {\"sku\": \"STP-0249\", \"name\": \"Nimbus Mustard Oil Pack of 6\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 53800, \"stock\": 17}, {\"sku\": \"STP-0255\", \"name\": \"Mitti Sugar 200g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 51900, \"stock\": 19}, {\"sku\": \"STP-0262\", \"name\": \"Kaveri Toor Dal 500g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 9450, \"stock\": 73}], \"next_cursor\": \"bzoxMA==\"}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "include_archived": true,
+              "category": "STP",
+              "cursor": "bzoxMA=="
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"STP-0270\", \"name\": \"Desi Farm Basmati Rice Pack of 6\", \"category\": \"Staples\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 10550, \"stock\": 46}, {\"sku\": \"STP-0278\", \"name\": \"Sunrise Groundnut Oil 100ml\", \"category\": \"Staples\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 30300, \"stock\": 106}], \"next_cursor\": null}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "STP-0230"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"STP-0230\", \"name\": \"Gully Besan 250g\", \"category\": \"Staples\", \"supplier_id\": \"SUP-01\", \"unit_price_paise\": 57350, \"stock\": 0, \"reorder_level\": 9, \"archived\": true}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "STP-0223"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"STP-0223\", \"name\": \"Nimbus Poha 1kg\", \"category\": \"Staples\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 4750, \"stock\": 1, \"reorder_level\": 26, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "11"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

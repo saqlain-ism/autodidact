@@ -1,0 +1,108 @@
+{
+  "task_id": "inv-brand_max-2",
+  "template": "brand_max",
+  "tier": "medium",
+  "run": 0,
+  "condition": "learned",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": false,
+  "reason": "answered ['BEV-0326'], expected STP-0249",
+  "answer": "BEV-0326",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 7,
+  "tool_errors": 0,
+  "prompt_tokens": 7500,
+  "completion_tokens": 146,
+  "requests": 3,
+  "seconds": 110.08,
+  "episode": {
+    "prompt": "Among active products with \"Nimbus\" in their name, which one has the highest selling price? Reply with its SKU.",
+    "answer": "BEV-0326",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 110.08,
+    "usage": {
+      "prompt_tokens": 7500,
+      "completion_tokens": 146,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Nimbus"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"BEV-0311\", \"name\": \"Nimbus Kokum Syrup 200g\", \"category\": \"Beverages\", \"unit_price_paise\": 4900, \"stock\": 93}, {\"sku\": \"BEV-0326\", \"name\": \"Nimbus Lemon Squash 200ml\", \"category\": \"Beverages\", \"unit_price_paise\": 36000, \"stock\": 57}, {\"sku\": \"DRY-0255\", \"name\": \"Nimbus Khoa 1kg\", \"category\": \"Dairy\", \"unit_price_paise\": 9500, \"stock\": 111}, {\"sku\": \"DRY-0271\", \"name\": \"Nimbus Ghee 1kg\", \"category\": \"Dairy\", \"unit_price_paise\": 11700, \"stock\": 107}, {\"sku\": \"HSH-0263\", \"name\": \"Nimbus Naphthalene Balls 200g\", \"category\": \"Household\", \"unit_price_paise\": 27250, \"stock\": 139}], \"truncated\": true}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "BEV-0311"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"BEV-0311\", \"name\": \"Nimbus Kokum Syrup 200g\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-08\", \"unit_price_paise\": 4900, \"stock\": 93, \"reorder_level\": 8, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "BEV-0326"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"BEV-0326\", \"name\": \"Nimbus Lemon Squash 200ml\", \"category\": \"Beverages\", \"supplier_id\": \"SUP-03\", \"unit_price_paise\": 36000, \"stock\": 57, \"reorder_level\": 28, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0255"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0255\", \"name\": \"Nimbus Khoa 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-05\", \"unit_price_paise\": 9500, \"stock\": 111, \"reorder_level\": 9, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "DRY-0271"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"DRY-0271\", \"name\": \"Nimbus Ghee 1kg\", \"category\": \"Dairy\", \"supplier_id\": \"SUP-07\", \"unit_price_paise\": 11700, \"stock\": 107, \"reorder_level\": 26, \"archived\": false}"
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "sku": "HSH-0263"
+            },
+            "ok": true,
+            "result": "{\"sku\": \"HSH-0263\", \"name\": \"Nimbus Naphthalene Balls 200g\", \"category\": \"Household\", \"supplier_id\": \"SUP-04\", \"unit_price_paise\": 27250, \"stock\": 139, \"reorder_level\": 27, \"archived\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "BEV-0326"
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}

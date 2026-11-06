@@ -1,0 +1,94 @@
+{
+  "task_id": "inv-place_order-1",
+  "template": "place_order",
+  "tier": "medium",
+  "run": 0,
+  "condition": "docs-only",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "passed": true,
+  "reason": "ok",
+  "answer": "Placed sales order SO-1031 for Gayatri Kulkarni.",
+  "stop_reason": "finished",
+  "error": null,
+  "turns": 3,
+  "tool_calls": 4,
+  "tool_errors": 0,
+  "prompt_tokens": 5728,
+  "completion_tokens": 131,
+  "requests": 3,
+  "seconds": 17.25,
+  "episode": {
+    "prompt": "Gayatri Kulkarni wants to buy 1 x Tarang Cream 1kg and 3 x Sunrise Glass Cleaner 250g. Place the order for them.",
+    "answer": "Placed sales order SO-1031 for Gayatri Kulkarni.",
+    "stop_reason": "finished",
+    "error": null,
+    "seconds": 17.25,
+    "usage": {
+      "prompt_tokens": 5728,
+      "completion_tokens": 131,
+      "requests": 3
+    },
+    "turns": [
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Tarang Cream 1kg"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"DRY-0397\", \"name\": \"Tarang Cream 1kg\", \"category\": \"Dairy\", \"unit_price_paise\": 59850, \"stock\": 17}], \"truncated\": false}"
+          },
+          {
+            "name": "search_products",
+            "arguments": {
+              "query": "Sunrise Glass Cleaner 250g"
+            },
+            "ok": true,
+            "result": "{\"items\": [{\"sku\": \"HSH-0267\", \"name\": \"Sunrise Glass Cleaner 250g\", \"category\": \"Household\", \"unit_price_paise\": 5400, \"stock\": 99}], \"truncated\": false}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "create_sales_order",
+            "arguments": {
+              "lines": [
+                {
+                  "sku": "DRY-0397",
+                  "qty": 1
+                },
+                {
+                  "sku": "HSH-0267",
+                  "qty": 3
+                }
+              ],
+              "customer_name": "Gayatri Kulkarni"
+            },
+            "ok": true,
+            "result": "{\"id\": \"SO-1031\", \"customer_name\": \"Gayatri Kulkarni\", \"status\": \"placed\", \"created_at\": \"2026-11-01T09:07:00\", \"lines\": [{\"sku\": \"DRY-0397\", \"qty\": 1, \"unit_price_paise\": 59850}, {\"sku\": \"HSH-0267\", \"qty\": 3, \"unit_price_paise\": 5400}], \"total_paise\": 76050}"
+          }
+        ]
+      },
+      {
+        "thought": null,
+        "cached": false,
+        "calls": [
+          {
+            "name": "finish",
+            "arguments": {
+              "answer": "Placed sales order SO-1031 for Gayatri Kulkarni."
+            },
+            "ok": true,
+            "result": ""
+          }
+        ]
+      }
+    ]
+  }
+}
